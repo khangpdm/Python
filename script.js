@@ -1,58 +1,125 @@
-document.getElementById('userForm').addEventListener('submit', function(event) {
+document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    
-    addUser (username, email);
-    
-    // Clear the form
-    this.reset();
+    var username = document.getElementById('username').value;
+    var password = document.getElementById('password').value;
+
+    if(username === 'admin' && password === 'admin123') {
+        document.querySelector('.admin-login').style.display = 'none';
+        document.querySelector('.admin-dashboard').style.display = 'block';
+    } else {
+        alert('Invalid username or password');
+    }
 });
 
-let users = [];
-
-function addUser (username, email) {
-    const user = {
-        id: Date.now(),
-        username: username,
-        email: email,
-        locked: false
-    };
-    users.push(user);
-    renderUsers();
+function showSection(sectionId) {
+    var sections = document.querySelectorAll('.admin-dashboard section');
+    sections.forEach(function(section) {
+        section.style.display = 'none';
+    });
+    document.getElementById(sectionId).style.display = 'block';
 }
 
-function renderUsers() {
+const users = JSON.parse(localStorage.getItem('users')) || [];
+
+document.getElementById('addUserForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const username = document.getElementById('addUsername').value;
+    const password = document.getElementById('addPassword').value;
+    addUser(username, password);
+});
+
+document.getElementById('editUserForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const username = document.getElementById('editUsername').value;
+    const password = document.getElementById('editPassword').value;
+    saveUserChanges(currentEditIndex, username, password);
+});
+
+let currentEditIndex = null;
+
+function addUser(username, password) {
+    const user = { username, password, locked: false };
+    users.push(user);
+    updateLocalStorage();
+    displayUsers();
+    document.getElementById('addUsername').value = '';
+    document.getElementById('addPassword').value = '';
+}
+
+function editUser(index) {
+    if (index >= 0 && index < users.length) {
+        currentEditIndex = index;
+        document.getElementById('editUserForm').style.display = 'block';
+        const user = users[index];
+        document.getElementById('editUsername').value = user.username;
+        document.getElementById('editPassword').value = user.password;
+    } else {
+        console.error('Invalid user index');
+    }
+}
+
+function saveUserChanges(index, username, password) {
+    if (index >= 0 && index < users.length) {
+        users[index].username = username;
+        users[index].password = password;
+        updateLocalStorage();
+        displayUsers();
+        document.getElementById('editUserForm').style.display = 'none';
+    } else {
+        console.error('Invalid user index');
+    }
+}
+
+function lockUser(index) {
+    if (index >= 0 && index < users.length) {
+        users[index].locked = !users[index].locked;
+        updateLocalStorage();
+        displayUsers();
+    } else {
+        console.error('Invalid user index');
+    }
+}
+
+function deleteUser(index) {
+    if (index >= 0 && index < users.length) {
+        users.splice(index, 1);
+        updateLocalStorage();
+        displayUsers();
+    } else {
+        console.error('Invalid user index');
+    }
+}
+
+function updateLocalStorage() {
+    localStorage.setItem('users', JSON.stringify(users));
+}
+
+function displayUsers() {
     const userList = document.getElementById('userList');
     userList.innerHTML = '';
-    
-    users.forEach(user => {
+    users.forEach((user, index) => {
         const li = document.createElement('li');
-        li.className = 'user-item';
-        li.innerHTML = `
-            <span class="${user.locked ? 'locked' : ''}">${user.username} - ${user.email}</span>
-            <button onclick="toggleLock(${user.id})">${user.locked ? 'Mở Khóa' : 'Khóa'}</button>
-            <button onclick="editUser (${user.id})">Sửa</button>
-        `;
+        li.textContent = `${user.username} - ${user.locked ? 'Locked' : 'Active'}`;
+        
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editUser(index);
+        
+        const lockButton = document.createElement('button');
+        lockButton.textContent = user.locked ? 'Unlock' : 'Lock';
+        lockButton.onclick = () => lockUser(index);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => {
+            if (confirm('Are you sure you want to delete this user?')) {
+                deleteUser(index);
+            }
+        };
+
+        li.append(editButton, lockButton, deleteButton);
         userList.appendChild(li);
     });
 }
 
-function toggleLock(userId) {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-        user.locked = !user.locked;
-        renderUsers();
-    }
-}
-
-function editUser (userId) {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-        document.getElementById('username').value = user.username;
-        document.getElementById('email').value = user.email;
-        users = users.filter(u => u.id !== userId); // Remove user for re-adding
-        renderUsers();
-    }
-}
+displayUsers();
