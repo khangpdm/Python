@@ -1,20 +1,15 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 20px;
 }
 
-.container {
-    max-width: 600px;
+.admin-login, .admin-dashboard {
+    max-width: 800px;
     margin: auto;
-    background: white;
     padding: 20px;
-    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
+h2 {
     text-align: center;
 }
 
@@ -23,34 +18,92 @@ form {
     flex-direction: column;
 }
 
+label {
+    margin-top: 10px;
+}
+
 input {
-    margin: 10px 0;
+    margin-bottom: 10px;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
 }
 
 button {
     padding: 10px;
-    background-color: #28a745;
+    background-color: #5cb85c;
     color: white;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #4cae4c;
 }
 
-.user-item {
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav ul li {
+    margin: 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+section {
+    margin-top: 20px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    margin-top: 10px;
+}
+
+form input {
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+form button {
+    padding: 10px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #4cae4c;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-bottom: 5px;
     display: flex;
     justify-content: space-between;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
+    align-items: center;
 }
 
-.locked {
-    color: red;
-    font-weight: bold;
+ul li button {
+    margin-left: 10px;
+    padding: 5px 10px;
 }
