@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-login">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div class="admin-dashboard" style="display: none;">
+        <h2>Admin Dashboard</h2>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showSection('userManagement')">User Management</a></li>
+                <li><a href="#" onclick="showSection('productManagement')">Product Management</a></li>
+                <li><a href="#" onclick="showSection('orderManagement')">Order Management</a></li>
+                <li><a href="#" onclick="showSection('businessAnalytics')">Business Analytics</a></li>
+            </ul>
+        </nav>
+        <section id="userManagement" style="display: block;">
+            <h3>User Management</h3>
+            <form id="addUserForm">
+                <label for="addUsername">Add User</label>
+                <input type="text" id="addUsername" placeholder="Username" required>
+                <input type="password" id="addPassword" placeholder="Password" required>
+                <button type="submit">Add User</button>
+            </form>
+            <ul id="userList"></ul>
+
+            <!-- Form for editing user -->
+            <section id="editUser" style="display: none;">
+                <h3>Edit User</h3>
+                <form id="editUserForm">
+                    <label for="editUsername">Username:</label>
+                    <input type="text" id="editUsername" required>
+                    <label for="editPassword">Password:</label>
+                    <input type="password" id="editPassword" required>
+                    <button type="submit">Save Changes</button>
+                </form>
+            </section>
+        </section>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
