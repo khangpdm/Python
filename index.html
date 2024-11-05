@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-login">
+        <form id="loginForm">
+            <h2>Admin Login</h2>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div class="admin-dashboard" style="display:none;">
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showSection('user-management')">User Management</a></li>
+                <li><a href="#" onclick="showSection('product-management')">Product Management</a></li>
+                <li><a href="#" onclick="showSection('order-management')">Order Management</a></li>
+                <li><a href="#" onclick="showSection('business-analytics')">Business Analytics</a></li>
+            </ul>
+        </nav>
+
+        <section id="user-management" style="display:none;">
+            <h2>User Management</h2>
+            <!-- User Management Functions: Add, Edit, Lock Users -->
+                <form id="addUserForm">
+                    <h3>Add User</h3>
+                    <label for="addUsername">Username:</label>
+                    <input type="text" id="addUsername" required>
+                    <label for="addPassword">Password:</label>
+                    <input type="password" id="addPassword" required>
+                    <button type="submit">Add User</button>
+                </form>
+                <form id="editUserForm" style="display:none;">
+                    <h3>Edit User</h3>
+                    <label for="editUsername">Username:</label>
+                    <input type="text" id="editUsername" required>
+                    <label for="editPassword">Password:</label>
+                    <input type="password" id="editPassword" required>
+                    <button type="submit">Save Changes</button>
+                </form>
+                <h3>User List</h3>
+                <ul id="userList"></ul>
+        </section>
+
+        <section id="product-management" style="display:none;">
+            <h2>Product Management</h2>
+
+        </section>
+
+        <section id="order-management" style="display:none;">
+            <h2>Order Management</h2>
+ 
+        </section>
+
+        <section id="business-analytics" style="display:none;">
+            <h2>Business Analytics</h2>
+
+        </section>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
