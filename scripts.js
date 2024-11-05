@@ -19,16 +19,27 @@ function showSection(sectionId) {
     document.getElementById(sectionId).style.display = 'block';
 }
 
-const users = JSON.parse(localStorage.getItem('users')) || [];
+function initializeDefaultUsers() {
+    if (!localStorage.getItem('users')) {
+        const defaultUsers = [];
+        localStorage.setItem('users', JSON.stringify(defaultUsers));
+        return defaultUsers;
+    }
+    return JSON.parse(localStorage.getItem('users'));
+}
 
-document.getElementById('addUserForm').addEventListener('submit', function(event) {
+// Use the initialization function
+const users = initializeDefaultUsers();
+displayUsers();
+
+document.getElementById('addUser Form').addEventListener('submit', function(event) {
     event.preventDefault();
     const username = document.getElementById('addUsername').value;
     const password = document.getElementById('addPassword').value;
-    addUser(username, password);
+    addUser (username, password);
 });
 
-document.getElementById('editUserForm').addEventListener('submit', function(event) {
+document.getElementById('editUser Form').addEventListener('submit', function(event) {
     event.preventDefault();
     const username = document.getElementById('editUsername').value;
     const password = document.getElementById('editPassword').value;
@@ -37,8 +48,8 @@ document.getElementById('editUserForm').addEventListener('submit', function(even
 
 let currentEditIndex = null;
 
-function addUser(username, password) {
-    const user = { username, password, locked: false };
+function addUser (username, password) {
+    const user = { username, password };
     users.push(user);
     updateLocalStorage();
     displayUsers();
@@ -46,10 +57,10 @@ function addUser(username, password) {
     document.getElementById('addPassword').value = '';
 }
 
-function editUser(index) {
+function editUser (index) {
     if (index >= 0 && index < users.length) {
         currentEditIndex = index;
-        document.getElementById('editUserForm').style.display = 'block';
+        document.getElementById('editUser Form').style.display = 'block';
         const user = users[index];
         document.getElementById('editUsername').value = user.username;
         document.getElementById('editPassword').value = user.password;
@@ -64,23 +75,13 @@ function saveUserChanges(index, username, password) {
         users[index].password = password;
         updateLocalStorage();
         displayUsers();
-        document.getElementById('editUserForm').style.display = 'none';
+        document.getElementById('editUser Form').style.display = 'none';
     } else {
         console.error('Invalid user index');
     }
 }
 
-function lockUser(index) {
-    if (index >= 0 && index < users.length) {
-        users[index].locked = !users[index].locked;
-        updateLocalStorage();
-        displayUsers();
-    } else {
-        console.error('Invalid user index');
-    }
-}
-
-function deleteUser(index) {
+function deleteUser (index) {
     if (index >= 0 && index < users.length) {
         users.splice(index, 1);
         updateLocalStorage();
@@ -99,25 +100,21 @@ function displayUsers() {
     userList.innerHTML = '';
     users.forEach((user, index) => {
         const li = document.createElement('li');
-        li.textContent = `${user.username} - ${user.locked ? 'Locked' : 'Active'}`;
+        li.textContent = `${user.username}`;
         
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
-        editButton.onclick = () => editUser(index);
-        
-        const lockButton = document.createElement('button');
-        lockButton.textContent = user.locked ? 'Unlock' : 'Lock';
-        lockButton.onclick = () => lockUser(index);
+        editButton.onclick = () => editUser (index);
         
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.onclick = () => {
             if (confirm('Are you sure you want to delete this user?')) {
-                deleteUser(index);
+                deleteUser (index);
             }
         };
 
-        li.append(editButton, lockButton, deleteButton);
+        li.append(editButton, deleteButton);
         userList.appendChild(li);
     });
 }
