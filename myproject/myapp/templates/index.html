@@ -7,59 +7,75 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {% load static %}  
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">  
-    {% load static %} 
     <script src="{% static 'js/script.js' %}"></script>
-   
-
-
-
+</head>
 <body>
-    <div id="modal">
-        <header >
-            <div id="header">
-                <h2>Hệ thống chấm trắc nghiệm</h3>
-                <ul id="item">
-                    <li id="loginItem"><a href="#" onclick="showLoginForm()">Đăng nhập</a></li>
-                    <li><a href="#">Hướng dẫn</a></li>
-                </ul>
-            </div>
-        </header>
-        <section class="banner">
-            <h2>Chấm điểm trắc nghiệm tự động</h2>
-            <p>Nhanh chóng-chính xác-tiện lợi</p>
-            <button class="banner-btn">Bắt đầu ngay</button>
-        </section>
-        <section class="feature">
-            <h2>Chức năng chính</h2>
-            <div class="feature-item">Chấm điểm tự động</div>
-            <div class="feature-item">Đánh giá kết quả</div>
-        </section>
-        <section class="statistics">
-            <h2>Thống kê nổi bật</h2>
-            <div class="stat-item">1000+ bài thi đã chấm</div>
-            <div class="stat-item">95% độ chính xác</div>
-            <div class="stat-item">500+ giáo viên sử dụng</div>
-        </section>
-        <section class="contact">
-            <h2>Liên hệ</h2>
-            <p>Email: domdom@gmail.com</p>
-            <p>Số điện thoại: 0123456789</p>
-        </section>
-        <footer>
-            <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
-        </footer>
-    
-        <form action="" id="loginForm" class="hidden">
-            <div id="login">
-                <h2>Đăng nhập</h2>
-                <button type="button" class="close" onclick="closeLoginForm()">+</button>
-                <input type="text" id="username" placeholder="Tên đăng nhập">
-                <input type="password" id="password" placeholder="Mật khẩu">
-                <button type="submit" class="btn-login" onclick="btn_login()">Đăng nhập</button>
-            </div>
-        </form>
+    <header id="header">
+        <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
+        <ul>
+            <li><a href="#" onclick="showLoginForm()">Đăng nhập</a></li>
+            <li><a href="#">Hướng dẫn</a></li>
+        </ul>
+    </header>
 
+    <section class="banner">
+        <h2>Chấm điểm trắc nghiệm tự động</h2>
+        <p>Nhanh chóng - Chính xác - Tiện lợi</p>
+        <button onclick="showUpload()" class="banner-btn">Bắt đầu ngay</button>
 
+        <div id="uploadSection">
+            <h3>Chọn ảnh để tải lên</h3>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="image" class="file-input">
+                <button type="submit" class="upload-btn">Tải lên</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Chức năng chính</h2>
+        <div class="feature-item">📌 Chấm điểm tự động</div>
+        <div class="feature-item">📊 Đánh giá kết quả</div>
+    </section>
+
+    <section class="statistics">
+        <h2>Thống kê nổi bật</h2>
+        <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
+        <div class="stat-item">🎯 95% độ chính xác</div>
+        <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
+    </section>
+
+    <section class="contact">
+        <h2>Liên hệ</h2>
+        <p><i class="fa fa-envelope"></i> Email: domdom@gmail.com</p>
+        <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
+    </footer>
+
+    <div id="loginForm" class="hidden">
+        <div id="login">
+            <h2>Đăng nhập</h2>
+            <button type="button" class="close" onclick="closeLoginForm()">+</button>
+            <input type="text" id="username" placeholder="Tên đăng nhập">
+            <input type="password" id="password" placeholder="Mật khẩu">
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </div>
     </div>
+
+    <script>
+        function showUpload() {
+            document.getElementById('uploadSection').style.display = 'block';
+        }
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'flex';
+        }
+        function closeLoginForm() {
+            document.getElementById('loginForm').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
