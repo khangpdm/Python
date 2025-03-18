@@ -13,15 +13,19 @@
     <header id="header">
         <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
         <ul>
-            <li><a href="#" onclick="showLoginForm()">Đăng nhập</a></li>
+            <li id="loginItem">
+              <a href="#" onclick="showLoginForm()">Đăng nhập</a>
+            </li>
             <li><a href="#">Hướng dẫn</a></li>
-        </ul>
+          </ul>
+          
     </header>
 
     <section class="banner">
         <h2>Chấm điểm trắc nghiệm tự động</h2>
         <p>Nhanh chóng - Chính xác - Tiện lợi</p>
-        <button onclick="showUpload()" class="banner-btn">Bắt đầu ngay</button>
+        <button class="banner-btn" id="startNowButton">Bắt đầu ngay</button>
+
 
         <div id="uploadSection">
             <h3>Chọn ảnh để tải lên</h3>
@@ -65,17 +69,5 @@
             <button type="submit" class="btn-login">Đăng nhập</button>
         </div>
     </div>
-
-    <script>
-        function showUpload() {
-            document.getElementById('uploadSection').style.display = 'block';
-        }
-        function showLoginForm() {
-            document.getElementById('loginForm').style.display = 'flex';
-        }
-        function closeLoginForm() {
-            document.getElementById('loginForm').style.display = 'none';
-        }
-    </script>
 </body>
 </html>
