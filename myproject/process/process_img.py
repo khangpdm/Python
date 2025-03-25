@@ -5,27 +5,6 @@ from math import ceil
 from model_test import SimpleCNN
 from collections import defaultdict
 import torch
-import mysql.connector
-
-def save_answers_to_db(answers):
-    # Kết nối đến cơ sở dữ liệu
-    connection = mysql.connector.connect(
-        host='localhost',          # Địa chỉ máy chủ MySQL
-        user='root',      # Tên người dùng MySQL
-        password='',  # Mật khẩu MySQL
-        database='python'    # Tên cơ sở dữ liệu
-    )
-    
-    cursor = connection.cursor()
-    
-    # Chèn câu trả lời vào bảng
-    for question_id, answer_list in answers.items():
-        for answer in answer_list:
-            cursor.execute('INSERT INTO answers (question_id, answer) VALUES (%s, %s)', (question_id, answer))
-    
-    connection.commit()  # Xác nhận thay đổi
-    cursor.close()       # Đóng con trỏ
-    connection.close()   # Đóng kết nối
 
 def get_x(s):
     return s[1][0]
@@ -153,9 +132,6 @@ if __name__ == '__main__':
     
     # Nhận các câu trả lời từ danh sách lựa chọn
     answers = get_answers(list_answers)
-    
-    # In ra các câu trả lời
-    print(answers)
     
     # Lưu các câu trả lời vào cơ sở dữ liệu
     save_answers_to_db(answers)
