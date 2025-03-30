@@ -21,52 +21,61 @@
           
     </header>
 
-    <section class="banner">
-        <h2>Chấm điểm trắc nghiệm tự động</h2>
-        <p>Nhanh chóng - Chính xác - Tiện lợi</p>
-        <button class="banner-btn" id="startNowButton">Bắt đầu ngay</button>
-
-
-        <div id="uploadSection">
-            <h3>Chọn ảnh để tải lên</h3>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="image" class="file-input">
-                <button type="submit" class="upload-btn">Tải lên</button>
-            </form>
-        </div>
+    <section id="teacherSection">
+        <h2 class="section-title">Bảng điều khiển của giáo viên</h2>
+        <ul class="info-list">
+            <li><button>Quản lý đề thi</button></li>
+            <li><button>Xem kết quả học sinh</button></li>
+            <li><button>Xuất báo cáo</button></li>
+        </ul>
+    </section>
+    
+    <section id="studentSection">
+        <h2 class="section-title">Thông tin học sinh</h2>
+        <ul class="info-list">
+            <li>
+                <button id="submitExamBtn">Nộp bài thi</button>
+                <div id="uploadSection" style="display: none; margin-top: 10px;">
+                  <input type="file" id="examImage" accept="image/*">
+                  <button id="uploadExamBtn">Tải lên bài thi</button>
+                </div>
+            </li>
+            <li><button>Xem kết quả</button></li>
+        </ul>
     </section>
 
-    <section class="features">
-        <h2>Chức năng chính</h2>
-        <div class="feature-item">📌 Chấm điểm tự động</div>
-        <div class="feature-item">📊 Đánh giá kết quả</div>
-    </section>
-
-    <section class="statistics">
-        <h2>Thống kê nổi bật</h2>
-        <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
-        <div class="stat-item">🎯 95% độ chính xác</div>
-        <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
-    </section>
-
-    <section class="contact">
-        <h2>Liên hệ</h2>
-        <p><i class="fa fa-envelope"></i> Email: domdom@gmail.com</p>
-        <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
-    </section>
-
-    <footer>
-        <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
-    </footer>
-
-    <div id="loginForm" class="hidden">
-        <div id="login">
-            <h2>Đăng nhập</h2>
-            <button type="button" class="close" onclick="closeLoginForm()">+</button>
-            <input type="text" id="username" placeholder="Tên đăng nhập">
-            <input type="password" id="password" placeholder="Mật khẩu">
-            <button type="submit" class="btn-login">Đăng nhập</button>
+    <div id="showForm">
+        <section class="features">
+            <h2>Chức năng chính</h2>
+            <div class="feature-item">📌 Chấm điểm tự động</div>
+            <div class="feature-item">📊 Đánh giá kết quả</div>
+        </section>
+    
+        <section class="statistics">
+            <h2>Thống kê nổi bật</h2>
+            <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
+            <div class="stat-item">🎯 95% độ chính xác</div>
+            <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
+        </section>
+    
+        <section class="contact">
+            <h2>Liên hệ</h2>
+            <p><i class="fa fa-envelope"></i> Email: domdom@gmail.com</p>
+            <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
+        </section>
+    
+        <footer>
+            <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
+        </footer>
+    
+        <div id="loginForm" class="hidden">
+            <div id="login">
+                <h2>Đăng nhập</h2>
+                <button type="button" class="close" onclick="closeLoginForm()">+</button>
+                <input type="text" id="username" placeholder="Tên đăng nhập">
+                <input type="password" id="password" placeholder="Mật khẩu">
+                <button type="submit" class="btn-login">Đăng nhập</button>
+            </div>
         </div>
     </div>
 </body>
