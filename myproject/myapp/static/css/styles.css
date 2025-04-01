@@ -8,19 +8,42 @@
 body {
     background-color: #f4f4f4;
     text-align: center;
+    position: relative;
+    overflow-x: hidden;
+
 }
 
-#header {
-    background-color: #437fcd;
+header {
+    background: linear-gradient(-45deg, #1e3c72, #2a5298, #3b72ba);
+    background-size: 400% 400%;
     color: white;
-    padding: 15px;
+    padding: 20px 0;
+    text-align: center;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    animation: gradientBG 6s ease infinite;
 }
 
 #header h2 {
     font-size: 25px;
+    margin-left: 15px;
+    animation: fadeInDown 1.5s ease-in-out;
+}
+h2 {
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    text-align: center;
+    animation: titleAnimation 2s ease-in-out infinite alternate;
+}
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #header ul {
@@ -169,7 +192,7 @@ footer {
 .close {
     position: absolute;
     top: 10px;
-    right: 20px;
+    right: 10px;
     font-size: 24px;
     background: none;
     border: none;
@@ -250,3 +273,41 @@ footer {
     transform: scale(1.05);
     box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
 }
+
+
+    
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+header ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: color 0.3s, text-shadow 0.3s, transform 0.3s;
+}
+header ul li a:hover {
+    color: #ffb400;
+    text-shadow: 0 0 10px #ffb400;
+    transform: scale(1.1);
+}
+
+
+header {
+    background: linear-gradient(90deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#header h2 {
+    animation: fadeInDown 1.5s ease-in-out;
+} 
