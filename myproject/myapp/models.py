@@ -10,10 +10,10 @@ from django.db import models
 
 class NganHangCauHoi(models.Model):
     noi_dung = models.TextField()
-    dap_an_a = models.TextField(db_column='dap_an_A')  # Field name made lowercase.
-    dap_an_b = models.TextField(db_column='dap_an_B')  # Field name made lowercase.
-    dap_an_c = models.TextField(db_column='dap_an_C')  # Field name made lowercase.
-    dap_an_d = models.TextField(db_column='dap_an_D')  # Field name made lowercase.
+    dap_an_A = models.TextField(db_column='dap_an_A')  # Field name made lowercase.
+    dap_an_B = models.TextField(db_column='dap_an_B')  # Field name made lowercase.
+    dap_an_C = models.TextField(db_column='dap_an_C')  # Field name made lowercase.
+    dap_an_D = models.TextField(db_column='dap_an_D')  # Field name made lowercase.
     dap_an_dung = models.JSONField(blank=True, null=True)
 
     class Meta:
