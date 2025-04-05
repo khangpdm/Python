@@ -5,6 +5,7 @@ from math import ceil
 from model_test import SimpleCNN
 from collections import defaultdict
 import torch
+import mysql.connector  # Thư viện để kết nối MySQL
 
 def get_x(s):
     return s[1][0]
@@ -98,7 +99,7 @@ def get_answers(list_answers):
     model = SimpleCNN('model_weight.pth')
     
     # Load model weights with weights_only=True for safety
-    model.load_state_dict(torch.load('model_weight.pth', weights_only=True))
+    model.load_state_dict(torch.load('D:/Python/Python-main/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
     model.eval()  # Set model to evaluation mode
 
     list_answers = np.array(list_answers)
@@ -117,9 +118,80 @@ def get_answers(list_answers):
 
     return results
 
+
+def get_correct_answer(question_id):
+    # Kết nối đến cơ sở dữ liệu để lấy câu trả lời đúng
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='tnonline'
+        )
+        cursor = connection.cursor()
+        
+        sql = "SELECT dap_an_dung FROM ngan_hang_cau_hoi WHERE id = %s"
+        cursor.execute(sql, (question_id,))
+        result = cursor.fetchone()
+        
+        if result:
+            return result[0]  # Trả về câu trả lời đúng
+        else:
+            return None  # Không tìm thấy câu hỏi
+
+    except mysql.connector.Error as err:
+        print(f"Lỗi: {err}")
+        return None
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+def save_answers_to_db(answers):
+    # Kết nối đến cơ sở dữ liệu
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',  
+            user='root',  
+            password='',  
+            database='tnonline' 
+        )
+        cursor = connection.cursor()
+        
+        for question, answer_list in answers.items():
+            # Kiểm tra xem có bao nhiêu đáp án
+            if len(answer_list) > 1:
+                # Nếu có nhiều hơn một đáp án, lưu vào cùng một hàng và đánh dấu là "Sai"
+                combined_answer = ', '.join(answer_list)
+                correct_answer = get_correct_answer(question)  # Lấy câu trả lời đúng
+                ket_qua = 'Sai'  # Đánh dấu là sai vì có nhiều đáp án
+            else:
+                # Nếu chỉ có một đáp án
+                answer = answer_list[0]
+                correct_answer = get_correct_answer(question)  # Lấy câu trả lời đúng
+                ket_qua = 'Đúng' if answer == correct_answer else 'Sai'
+                combined_answer = answer  # Chỉ có một đáp án
+
+            # Insert câu trả lời vào bảng chi_tiet_bai_lam
+            sql = "INSERT INTO chi_tiet_bai_lam (id_bai_lam, id_cau_hoi, cau_tra_loi, ket_qua) VALUES (%s, %s, %s, %s)"
+            
+            # Thay '1' bằng id_bai_lam thực tế nếu cần
+            values = (1, question, combined_answer, ket_qua)  # 1 là id_bai_lam, question là id_cau_hoi, combined_answer là câu trả lời, ket_qua là kết quả
+            cursor.execute(sql, values)
+
+        connection.commit()  # Xác nhận giao dịch
+        print("Câu trả lời đã được lưu vào cơ sở dữ liệu.")
+
+    except mysql.connector.Error as err:
+        print(f"Lỗi: {err}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
 if __name__ == '__main__':
     # Tải ảnh từ đường dẫn cụ thể
-    img = cv2.imread('./process/1.jpg')
+    img = cv2.imread('D:/Python/Python-main/myproject/process/1.jpg')  # Sửa lại đường dẫn
     
     # Trích xuất các khối đáp án
     list_ans_boxes = crop_image(img)
@@ -132,6 +204,10 @@ if __name__ == '__main__':
     
     # Nhận các câu trả lời từ danh sách lựa chọn
     answers = get_answers(list_answers)
-    
-    # Lưu các câu trả lời vào cơ sở dữ liệu
+
+    # In ra kết quả câu trả lời
+    for question, answer in answers.items():
+        print(f"Câu hỏi {question}: {', '.join(answer)}")
+
+    # Lưu câu trả lời vào cơ sở dữ liệu
     save_answers_to_db(answers)
