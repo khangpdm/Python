@@ -346,3 +346,25 @@ tr:hover {
 th {
     font-weight: bold;
 }
+
+#darkModeToggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 14px;
+    font-size: 20px;
+    background-color: #f1f1f1;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 999;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* Dark mode style cho nút */
+  body.dark-mode #darkModeToggle {
+    background-color: #333;
+    color: #fff;
+  }
+  

@@ -93,3 +93,25 @@ def xem_de_thi(request, id):
         'de_thi': de_thi,
         'danh_sach_cau_hoi': danh_sach_cau_hoi
     })
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import GiaoVien, HocSinh
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get("username").strip()
+        password = request.POST.get("password").strip()
+
+        gv = GiaoVien.objects.filter(username=username, password=password).first()
+        hs = HocSinh.objects.filter(username=username, password=password).first()
+
+        if gv:
+            return HttpResponse(f"Đăng nhập thành công (Giáo viên: {gv.username})")
+        elif hs:
+            return HttpResponse(f"Đăng nhập thành công (Học sinh: {hs.username})")
+        else:
+            return HttpResponse("Sai tên đăng nhập hoặc mật khẩu!")
+    
+    return render(request, 'login.html')
