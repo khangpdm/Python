@@ -1,14 +1,68 @@
 <!-- templates/chi_tiet_de_thi.html -->
-<h2>Đề thi: {{ de_thi.ten_de }}</h2>
-<p>Ngày tạo: {{ de_thi.ngay_tao }}</p>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đề thi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        .cau-hoi {
+            background: #fff;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .cau-hoi strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+        .dapan {
+            margin-left: 20px;
+        }
+        .dapan p {
+            margin: 4px 0;
+        }
+        .tao-de-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .tao-de-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Đề thi: {{ de_thi.ten_de }}</h2>
+    <p>Ngày tạo: {{ de_thi.ngay_tao|date:"d/m/Y H:i" }}</p>
 
-<ol>
-    {% for chitiet in danh_sach_cau_hoi %}
-        <li>
-            <strong>Câu {{ chitiet.thu_tu }}:</strong>
-            {{ chitiet.cau_hoi.noi_dung }}
-        </li>
-    {% endfor %}
-</ol>
+    <ol>
+        {% for chitiet in danh_sach_cau_hoi %}
+            <li class="cau-hoi">
+                <strong>Câu {{ chitiet.thu_tu }}: {{ chitiet.cau_hoi.noi_dung }}</strong>
+                <div class="dapan">
+                    <p>A. {{ chitiet.cau_hoi.dap_an_A }}</p>
+                    <p>B. {{ chitiet.cau_hoi.dap_an_B }}</p>
+                    <p>C. {{ chitiet.cau_hoi.dap_an_C }}</p>
+                    <p>D. {{ chitiet.cau_hoi.dap_an_D }}</p>
+                </div>
+            </li>
+        {% endfor %}
+    </ol>
 
-<a href="{% url 'tao_de_thi' %}">Tạo đề thi mới</a>
+    <a href="{% url 'tao_de_thi' %}" class="tao-de-btn">Tạo đề thi mới</a>
+</body>
+</html>

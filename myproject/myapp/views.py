@@ -1,7 +1,11 @@
 import random
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import IntegrityError
+from django.contrib import messages
 from .models import NganHangCauHoi, DeThi, DeThiChiTiet
 from .forms import CauHoiForm
+from django.utils import timezone
+
 
 def home(request):
     return render(request, 'index.html')
@@ -40,37 +44,51 @@ def xoa_cau_hoi(request, id):
 
 def tao_de_thi(request):
     if request.method == 'POST':
-        ten_de = request.POST.get('ten_de', 'Đề thi mặc định')
-        
-        # Lấy tất cả câu hỏi từ ngân hàng
-        tat_ca_cau_hoi = list(NganHangCauHoi.objects.all())
-        
-        if len(tat_ca_cau_hoi) < 50:
-            error = "Ngân hàng câu hỏi chưa đủ 50 câu, hãy thêm câu hỏi vào hệ thống."
-            return render(request, 'taodethi.html', {'error': error})
-        
-        # Chọn ngẫu nhiên 50 câu hỏi
-        cau_hoi_chon = random.sample(tat_ca_cau_hoi, 50)
-        
-        # Tạo đề thi mới với tên đề
-        de_thi = DeThi.objects.create(ten_de=ten_de)
-        
-        # Lưu từng câu hỏi vào chi tiết đề thi kèm thứ tự
-        for index, cau_hoi in enumerate(cau_hoi_chon, start=1):
-            DeThiChiTiet.objects.create(
-                de_thi=de_thi,
-                cau_hoi=cau_hoi,
-                thu_tu=index
+        ma_de = request.POST.get('ma_de')
+        ten_de = request.POST.get('ten_de')
+        id_giao_vien = request.POST.get('id_giao_vien') or 1  # hardcoded tạm
+
+        # Kiểm tra mã đề đã tồn tại chưa
+        if DeThi.objects.filter(ma_de=ma_de).exists():
+            messages.error(request, 'Mã đề đã tồn tại. Vui lòng chọn mã khác.')
+            return render(request, 'taodethi.html')
+
+        try:
+            de_thi = DeThi.objects.create(
+                ma_de=ma_de,
+                ten_de=ten_de,
+                ngay_tao=timezone.now(),
+                id_giao_vien=id_giao_vien
             )
-        
-        # Redirect đến trang chi tiết đề thi vừa tạo
-        return redirect('chi_tiet_de_thi', de_thi_id=de_thi.id)
-    
+
+            # Random 50 câu hỏi
+            cau_hoi_ngau_nhien = list(NganHangCauHoi.objects.order_by('?')[:50])
+            for thu_tu, cau_hoi in enumerate(cau_hoi_ngau_nhien, start=1):
+                DeThiChiTiet.objects.create(
+                    de_thi=de_thi,
+                    cau_hoi=cau_hoi,
+                    thu_tu=thu_tu
+                )
+
+            return redirect('xem_de_thi', id=de_thi.id)
+
+        except IntegrityError:
+            messages.error(request, 'Lỗi khi tạo đề. Có thể mã đề bị trùng.')
+            return render(request, 'taodethi.html')
+
     return render(request, 'taodethi.html')
 
 def chi_tiet_de_thi(request, de_thi_id):
     de_thi = get_object_or_404(DeThi, pk=de_thi_id)
     danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi=de_thi).order_by('thu_tu')
+    return render(request, 'chitietdethi.html', {
+        'de_thi': de_thi,
+        'danh_sach_cau_hoi': danh_sach_cau_hoi
+    })
+    
+def xem_de_thi(request, id):
+    de_thi = get_object_or_404(DeThi, pk=id)
+    danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi_id=id).select_related('cau_hoi').order_by('thu_tu')
     return render(request, 'chitietdethi.html', {
         'de_thi': de_thi,
         'danh_sach_cau_hoi': danh_sach_cau_hoi

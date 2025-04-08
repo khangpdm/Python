@@ -1,17 +1,3 @@
-const users = [
-  { username: "hongtham", password: "12345" },
-  { username: "ngocphuong", password: "12345" },
-  { username: "hoangphuc", password: "12345" },
-  { username: "minhkhang", password: "12345" }
-];
-
-const gv = [
-  { username: "hongtham1", password: "12345" },
-  { username: "ngocphuong1", password: "12345" },
-  { username: "hoangphuc1", password: "12345" },
-  { username: "minhkhang1", password: "12345" }
-];
-
 let currentUser = null; 
 
 function showLoginForm() {
@@ -24,39 +10,6 @@ function closeLoginForm() {
     loginForm.style.display = "none";
   }
 }
-
-function btn_login() {
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!username || !password) {
-    alert("Vui lòng nhập đầy đủ thông tin!");
-    return;
-  }
-
-  const teacher = gv.find(u => u.username === username && u.password === password);
-  const student = users.find(u => u.username === username && u.password === password);
-
-  if (teacher) {
-    currentUser = teacher;
-    alert(`Đăng nhập thành công (Giáo viên: ${teacher.username})`);
-    updateLoginStatus(teacher.username, "teacher");
-  } else if (student) {
-    currentUser = student;
-    alert(`Đăng nhập thành công (Học sinh: ${student.username})`);
-    updateLoginStatus(student.username, "student");
-  } else {
-    alert("Sai tên đăng nhập hoặc mật khẩu!");
-    return;
-  }
-  usernameInput.value = "";
-  passwordInput.value = "";
-  closeLoginForm();
-}
-
 
 function updateLoginStatus(username, role) {
   const loginItem = document.getElementById("loginItem");
@@ -88,9 +41,6 @@ function logout() {
     showForm.style.display = "block";
   }
 }
-
-
-
 
 function showUserInterface(role) {
   const teacherSection = document.getElementById("teacherSection");
