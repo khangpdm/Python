@@ -39,3 +39,20 @@ class DeThiChiTiet(models.Model):
     class Meta:
         db_table = 'de_thi_chi_tiet'
         managed = False  # Vì bảng đã có sẵn trong database
+
+
+from django.db import models
+
+class GiaoVien(models.Model):
+    username = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'giao_vien'  # trỏ đến bảng có sẵn
+
+class HocSinh(models.Model):
+    username = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'hoc_sinh'  # trỏ đến bảng có sẵn
