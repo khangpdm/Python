@@ -1,0 +1,9 @@
+<h2>{% if form.instance.pk %}Sửa{% else %}Thêm{% endif %} câu hỏi</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Lưu</button>
+</form>
+
+<a href="{% url 'cau_hoi_list' %}">← Quay lại danh sách</a>

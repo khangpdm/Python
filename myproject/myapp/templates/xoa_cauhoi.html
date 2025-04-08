@@ -1,0 +1,7 @@
+<h2>Xác nhận xoá</h2>
+<p>Bạn có chắc muốn xoá câu hỏi: "{{ cauhoi.noi_dung }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Xác nhận xoá</button>
+</form>
+<a href="{% url 'cau_hoi_list' %}">← Huỷ</a>

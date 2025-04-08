@@ -10,11 +10,11 @@ from django.db import models
 
 class NganHangCauHoi(models.Model):
     noi_dung = models.TextField()
-    dap_an_A = models.TextField(db_column='dap_an_A')  # Field name made lowercase.
-    dap_an_B = models.TextField(db_column='dap_an_B')  # Field name made lowercase.
-    dap_an_C = models.TextField(db_column='dap_an_C')  # Field name made lowercase.
-    dap_an_D = models.TextField(db_column='dap_an_D')  # Field name made lowercase.
-    dap_an_dung = models.JSONField(blank=True, null=True)
+    dap_an_A = models.TextField(db_column='dap_an_A')
+    dap_an_B = models.TextField(db_column='dap_an_B')
+    dap_an_C = models.TextField(db_column='dap_an_C')
+    dap_an_D = models.TextField(db_column='dap_an_D')
+    dap_an_dung = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], null=True, blank=True)
 
     class Meta:
         managed = False

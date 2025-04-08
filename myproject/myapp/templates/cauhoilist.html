@@ -8,32 +8,32 @@
     <title>Danh sách câu hỏi</title>
 </head>
 <body>
-    <h1>Danh sách Câu Hỏi</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nội Dung</th>
-                <th>Đáp Án A</th>
-                <th>Đáp Án B</th>
-                <th>Đáp Án C</th>
-                <th>Đáp Án D</th>
-                <th>Đáp Án Đúng</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cau_hoi %}
-                <tr>
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.noi_dung }}</td>
-                    <td>{{ item.dap_an_A }}</td>
-                    <td>{{ item.dap_an_B }}</td>
-                    <td>{{ item.dap_an_C }}</td>
-                    <td>{{ item.dap_an_D }}</td>
-                    <td>{{ item.dap_an_dung }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+    <h2>Danh sách câu hỏi</h2>
+    <a href="{% url 'them_cau_hoi' %}">➕ Thêm câu hỏi</a>
+    <table border="1">
+        <tr>
+            <th>Nội dung</th>
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>Đáp án đúng</th>
+            <th>Hành động</th>
+        </tr>
+        {% for cauhoi in danh_sach_cau_hoi %}
+        <tr>
+            <td>{{ cauhoi.noi_dung }}</td>
+            <td>{{ cauhoi.dap_an_A }}</td>
+            <td>{{ cauhoi.dap_an_B }}</td>
+            <td>{{ cauhoi.dap_an_C }}</td>
+            <td>{{ cauhoi.dap_an_D }}</td>
+            <td>{{ cauhoi.dap_an_dung }}</td>
+            <td>
+                <a href="{% url 'sua_cau_hoi' cauhoi.id %}">✏️</a>
+                <a href="{% url 'xoa_cau_hoi' cauhoi.id %}">🗑️</a>
+            </td>
+        </tr>
+        {% endfor %}
     </table>
 </body>
 </html>

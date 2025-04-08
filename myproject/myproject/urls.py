@@ -17,9 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from myapp.views import home, cau_hoi_list  # Import thêm view cau_hoi_list
+from myapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('cau-hoi/', cau_hoi_list, name='cau_hoi_list'),  # Thêm đường dẫn mới
+    path('cau-hoi/them/', views.them_cau_hoi, name='them_cau_hoi'),
+    path('cau-hoi/sua/<int:id>/', views.sua_cau_hoi, name='sua_cau_hoi'),
+    path('cau-hoi/xoa/<int:id>/', views.xoa_cau_hoi, name='xoa_cau_hoi'),
 ]
