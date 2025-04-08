@@ -26,4 +26,6 @@ urlpatterns = [
     path('cau-hoi/them/', views.them_cau_hoi, name='them_cau_hoi'),
     path('cau-hoi/sua/<int:id>/', views.sua_cau_hoi, name='sua_cau_hoi'),
     path('cau-hoi/xoa/<int:id>/', views.xoa_cau_hoi, name='xoa_cau_hoi'),
+    path('tao-de-thi/', views.tao_de_thi, name='tao_de_thi'),
+    path('de-thi/<int:de_thi_id>/', views.chi_tiet_de_thi, name='chi_tiet_de_thi'),
 ]

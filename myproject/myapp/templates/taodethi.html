@@ -1,0 +1,13 @@
+<!-- templates/tao_de_thi.html -->
+<h2>Tạo đề thi mới</h2>
+
+{% if error %}
+  <p style="color:red">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label>Tên đề thi:</label>
+    <input type="text" name="ten_de" required>
+    <button type="submit">Tạo đề thi với 50 câu</button>
+</form>

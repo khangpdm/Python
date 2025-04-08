@@ -1,0 +1,14 @@
+<!-- templates/chi_tiet_de_thi.html -->
+<h2>Đề thi: {{ de_thi.ten_de }}</h2>
+<p>Ngày tạo: {{ de_thi.ngay_tao }}</p>
+
+<ol>
+    {% for chitiet in danh_sach_cau_hoi %}
+        <li>
+            <strong>Câu {{ chitiet.thu_tu }}:</strong>
+            {{ chitiet.cau_hoi.noi_dung }}
+        </li>
+    {% endfor %}
+</ol>
+
+<a href="{% url 'tao_de_thi' %}">Tạo đề thi mới</a>

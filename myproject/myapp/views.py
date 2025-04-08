@@ -1,5 +1,6 @@
+import random
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import NganHangCauHoi
+from .models import NganHangCauHoi, DeThi, DeThiChiTiet
 from .forms import CauHoiForm
 
 def home(request):
@@ -36,3 +37,41 @@ def xoa_cau_hoi(request, id):
         cauhoi.delete()
         return redirect('cau_hoi_list')
     return render(request, 'xoa_cauhoi.html', {'cauhoi': cauhoi})
+
+def tao_de_thi(request):
+    if request.method == 'POST':
+        ten_de = request.POST.get('ten_de', 'Đề thi mặc định')
+        
+        # Lấy tất cả câu hỏi từ ngân hàng
+        tat_ca_cau_hoi = list(NganHangCauHoi.objects.all())
+        
+        if len(tat_ca_cau_hoi) < 50:
+            error = "Ngân hàng câu hỏi chưa đủ 50 câu, hãy thêm câu hỏi vào hệ thống."
+            return render(request, 'taodethi.html', {'error': error})
+        
+        # Chọn ngẫu nhiên 50 câu hỏi
+        cau_hoi_chon = random.sample(tat_ca_cau_hoi, 50)
+        
+        # Tạo đề thi mới với tên đề
+        de_thi = DeThi.objects.create(ten_de=ten_de)
+        
+        # Lưu từng câu hỏi vào chi tiết đề thi kèm thứ tự
+        for index, cau_hoi in enumerate(cau_hoi_chon, start=1):
+            DeThiChiTiet.objects.create(
+                de_thi=de_thi,
+                cau_hoi=cau_hoi,
+                thu_tu=index
+            )
+        
+        # Redirect đến trang chi tiết đề thi vừa tạo
+        return redirect('chi_tiet_de_thi', de_thi_id=de_thi.id)
+    
+    return render(request, 'taodethi.html')
+
+def chi_tiet_de_thi(request, de_thi_id):
+    de_thi = get_object_or_404(DeThi, pk=de_thi_id)
+    danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi=de_thi).order_by('thu_tu')
+    return render(request, 'chitietdethi.html', {
+        'de_thi': de_thi,
+        'danh_sach_cau_hoi': danh_sach_cau_hoi
+    })
