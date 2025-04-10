@@ -13,9 +13,9 @@
         <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
         <ul>
             {% if username %}
-                {{username}} - {{role}}
+                <!-- {{username}} - {{role}} -->
                 <li id="loginItem">
-                    <a href="{% url 'logout' %}">Đăng xuất</a>
+                    <a href="{% url 'logout' %}">Đăng xuất({{username}})</a>
                 </li>
             {% else %}
             <li id="loginItem">
@@ -27,27 +27,35 @@
     </header>
 
     {% if role == 'teacher' %}
-        <section id="teacherSection">
-            <!-- <h2>Chào giáo viên {{ username }}</h2> -->
+        <section id="teacherSection" >
+            <h2>PHẦN ĐIỀU KHIỂN CỦA GIÁO VIÊN</h2>
             <ul>
                 <li><button>Quản lý đề thi</button></li>
                 <li><button>Quản lý câu hỏi</button></li>
                 <li><button>Xem kết quả học sinh</button></li>
                 <li><button>Xuất báo cáo</button></li>
             </ul>
-            <a href="{% url 'logout' %}">Đăng xuất</a>
+            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
         </section>
 
     {% elif role == 'student' %}
-        <section id="studentSection">
-            <!-- <h2>Chào học sinh {{ username }}</h2> -->
-            <ul>
-                <li><button>Nộp bài thi</button></li>
-                <li><button>Xem kết quả</button></li>
-            </ul>
-            <a href="{% url 'logout' %}">Đăng xuất</a>
-        </section>
-
+    <section id="studentSection">
+        <h2 class="section-title">THÔNG TIN CỦA HỌC SINH</h2>
+        <ul class="info-list">
+            <li>
+                <button id="submitExamBtn">Nộp bài thi</button>
+                <div id="uploadSection" style="display: none; margin-top: 10px;">
+                    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_exam' %}">
+                        {% csrf_token %}
+                        <input type="file" id="examImage" name="exam_file" accept="image/*">
+                        <button type="submit" id="uploadExamBtn">Tải lên bài thi</button>
+                    </form>
+                </div>
+            </li>
+            <li><button>Xem kết quả</button></li>
+        </ul>
+    </section>
+            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
     {% else %}
     <!-- Trang chưa đăng nhập -->
     <div id="showForm">
@@ -74,8 +82,7 @@
             <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
         </footer>
 
-        <div id="loginForm" style="display: none;">
-            <form method="POST" action="{% url 'login' %}">
+            <form method="POST" action="{% url 'login' %}" id="loginForm" style="display: none;">
                 <div id="login">
                     {% csrf_token %}
                     <h2>Đăng nhập</h2> 
@@ -85,9 +92,11 @@
                     <button type="submit" class="btn-login ">Đăng nhập</button>
                 </div>
             </form>            
-        </div>
     </div>
     {% endif %}
+    <div id="themeToggle" class="theme-toggle">
+        <i class="fa-solid fa-moon"></i>
+    </div>
     <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

@@ -1,20 +1,21 @@
+// Chuyển đổi chế độ tối
+document.getElementById('themeToggle').addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    this.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+});
 
+// Hiển thị upload section
+document.getElementById('submitExamBtn')?.addEventListener('click', function() {
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('submitExamBtn').style.display = 'none';
+});
 
 function showLoginForm(event) {
     event.preventDefault();
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.style.display = "block";
-    }
+    document.getElementById('loginForm').style.display = 'block';
 }
 
 function closeLoginForm() {
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.style.display = "none";
-    }
-}
-
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    document.getElementById('loginForm').style.display = 'none';
 }

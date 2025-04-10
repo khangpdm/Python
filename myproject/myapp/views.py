@@ -128,7 +128,7 @@ def login_view(request):
         try:
             teacher = GiaoVien.objects.get(ten_dang_nhap=username, mat_khau=password)
             request.session['username'] = teacher.ten_dang_nhap
-            request.session['role'] = 'Giáo viên'
+            request.session['role'] = 'teacher'
             return redirect('home')
         except GiaoVien.DoesNotExist:
             pass
@@ -136,7 +136,7 @@ def login_view(request):
         try:
             student = HocSinh.objects.get(ten_dang_nhap=username, mat_khau=password)
             request.session['username'] = student.ten_dang_nhap
-            request.session['role'] = 'Học sinh'
+            request.session['role'] = 'student'
             return redirect('home')
         except HocSinh.DoesNotExist:
             pass
@@ -169,3 +169,24 @@ def home_view(request):
     }
     return render(request, 'index.html', context)
 
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+import os
+from django.conf import settings
+
+def upload_exam(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        if 'exam_file' in request.FILES:
+            exam_file = request.FILES['exam_file']
+            file_path = os.path.join(settings.MEDIA_ROOT, 'exam_submissions', exam_file.name)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, 'wb+') as destination:
+                for chunk in exam_file.chunks():
+                    destination.write(chunk)
+            messages.success(request, f'Đã nộp bài thi: {exam_file.name}')
+        else:
+            messages.error(request, 'Vui lòng chọn file để nộp.')
+        return redirect('home')
+    return redirect('login')
