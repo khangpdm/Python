@@ -2,13 +2,25 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import IntegrityError
 from django.contrib import messages
-from .models import NganHangCauHoi, DeThi, DeThiChiTiet
+from .models import NganHangCauHoi, DeThi, DeThiChiTiet, GiaoVien, HocSinh
 from .forms import CauHoiForm
 from django.utils import timezone
 
 
 def home(request):
-    return render(request, 'index.html')
+    role = request.session.get('role', '')
+    username = request.session.get('username', '')
+    login_success = bool(username)
+
+    print("DEBUG - role:", role)
+    print("DEBUG - username:", username)
+
+    context = {
+        'role': role,
+        'username': username,
+        'login_success': login_success
+    }
+    return render(request, 'index.html', context)
 
 def cau_hoi_list(request):
     danh_sach_cau_hoi = NganHangCauHoi.objects.all()
@@ -95,23 +107,65 @@ def xem_de_thi(request, id):
     })
 
 
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import GiaoVien, HocSinh
+
+
+
+
+
+
+# views.py
+# views.py
+
+
+# views.py
+from myapp.models import GiaoVien, HocSinh
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get("username").strip()
-        password = request.POST.get("password").strip()
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-        gv = GiaoVien.objects.filter(username=username, password=password).first()
-        hs = HocSinh.objects.filter(username=username, password=password).first()
+        try:
+            teacher = GiaoVien.objects.get(ten_dang_nhap=username, mat_khau=password)
+            request.session['username'] = teacher.ten_dang_nhap
+            request.session['role'] = 'Giáo viên'
+            return redirect('home')
+        except GiaoVien.DoesNotExist:
+            pass
 
-        if gv:
-            return HttpResponse(f"Đăng nhập thành công (Giáo viên: {gv.username})")
-        elif hs:
-            return HttpResponse(f"Đăng nhập thành công (Học sinh: {hs.username})")
-        else:
-            return HttpResponse("Sai tên đăng nhập hoặc mật khẩu!")
-    
-    return render(request, 'login.html')
+        try:
+            student = HocSinh.objects.get(ten_dang_nhap=username, mat_khau=password)
+            request.session['username'] = student.ten_dang_nhap
+            request.session['role'] = 'Học sinh'
+            return redirect('home')
+        except HocSinh.DoesNotExist:
+            pass
+
+        return render(request, 'index.html', {
+            'error': 'Sai tài khoản hoặc mật khẩu!',
+            'login_success': False
+        })
+
+    return redirect('home')
+
+
+def logout_view(request):
+    request.session.flush()
+    return redirect('home')
+
+
+def home_view(request):
+    role = request.session.get('role', '')
+    username = request.session.get('username', '')
+    login_success = bool(username)
+
+    print("DEBUG - role:", role)
+    print("DEBUG - username:", username)
+
+    context = {
+        'role': role,
+        'username': username,
+        'login_success': login_success
+    }
+    return render(request, 'index.html', context)
+
