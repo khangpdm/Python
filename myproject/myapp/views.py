@@ -123,6 +123,29 @@ def xem_de_thi(request, id):
     })
 
 
+from .models import DeThi
+
+def danh_sach_de_thi(request):
+    # Lấy tất cả các đề thi
+    danh_sach_de_thi = DeThi.objects.all().order_by('-ngay_tao')  # Sắp xếp theo ngày tạo, mới nhất trước
+
+    # Trả về template kèm theo dữ liệu danh sách đề thi
+    return render(request, 'danh_sach_de_thi.html', {
+        'danh_sach_de_thi': danh_sach_de_thi
+    })
+    
+def xoa_de_thi(request, id):
+    de_thi = get_object_or_404(DeThi, pk=id)
+
+    # Xoá các câu hỏi liên quan
+    DeThiChiTiet.objects.filter(de_thi=de_thi).delete()
+
+    # Xoá đề
+    de_thi.delete()
+    messages.success(request, "Xoá đề thi thành công.")
+    return redirect('danh_sach_de_thi')
+
+
 
 
 

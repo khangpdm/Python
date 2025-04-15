@@ -24,7 +24,7 @@ class DeThi(models.Model):
     ten_de = models.CharField(max_length=255)
     ma_de = models.CharField(max_length=20)
     ngay_tao = models.DateTimeField(auto_now_add=True)
-    id_giao_vien = models.IntegerField()  # hoặc ForeignKey nếu có bảng GiaoVien
+    id_giao_vien = models.ForeignKey('GiaoVien', db_column='id_giao_vien', on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = 'de_thi'  # chỉ định đúng tên bảng có sẵn trong DB

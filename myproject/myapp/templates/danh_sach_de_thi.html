@@ -1,0 +1,35 @@
+{% load static %}
+    <title>Danh sách đề thi</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <h2>Danh sách đề thi đã tạo</h2>
+    
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Mã Đề</th>
+                <th>Tên Đề</th>
+                <th>Ngày Tạo</th>
+                <th>Giáo Viên</th>
+                <th>Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for de_thi in danh_sach_de_thi %}
+            <tr>
+                <td>{{ de_thi.ma_de }}</td>
+                <td>{{ de_thi.ten_de }}</td>
+                <td>{{ de_thi.ngay_tao|date:"d/m/Y H:i" }}</td>
+                <td>{{ de_thi.id_giao_vien.ten_dang_nhap }}</td>
+                <td>
+                    <a href="{% url 'xem_de_thi' de_thi.id %}" class="btn btn-info btn-sm">Xem</a>
+                    <a href="{% url 'xoa_de_thi' de_thi.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Xoá đề này?')">Xoá</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Chưa có đề thi nào.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'tao_de_thi' %}">Tạo Đề Thi Mới</a>
