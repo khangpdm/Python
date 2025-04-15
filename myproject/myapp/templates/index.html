@@ -1,84 +1,102 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chấm Trắc Nghiệm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    {% load static %}  
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">  
-    <script src="{% static 'js/script.js' %}"></script>
 </head>
 <body>
     <header id="header">
         <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
         <ul>
+            {% if username %}
+                <!-- {{username}} - {{role}} -->
+                <li id="loginItem">
+                    <a href="{% url 'logout' %}">Đăng xuất({{username}})</a>
+                </li>
+            {% else %}
             <li id="loginItem">
-              <a href="#" onclick="showLoginForm()">Đăng nhập</a>
-            </li>
+                <a href="#" onclick="showLoginForm(event)">Đăng nhập</a>
+            </li>  
+            {% endif %}      
             <li><a href="#">Hướng dẫn</a></li>
-          </ul>        
+        </ul>      
     </header>
-    <button id="darkModeToggle" title="Chuyển chế độ">🌞</button>
-      
 
-    <section id="teacherSection">
-        <h2 class="section-title">Bảng điều khiển của giáo viên</h2>
-        <ul class="info-list">
-            <li><button>Quản lý đề thi</button></li>
-            <li><button>Quản lý câu hỏi</button></li>
-            <li><button>Xem kết quả học sinh</button></li>
-            <li><button>Xuất báo cáo</button></li>
-        </ul>
-    </section>
-    
+    {% if role == 'teacher' %}
+        <section id="teacherSection" >
+            <h2>PHẦN ĐIỀU KHIỂN CỦA GIÁO VIÊN</h2>
+            <ul>
+                <li><button>Quản lý đề thi</button></li>
+                <li><button>Quản lý câu hỏi</button></li>
+                <li><button>Xem kết quả học sinh</button></li>
+                <li><button>Xuất báo cáo</button></li>
+            </ul>
+            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
+        </section>
+
+    {% elif role == 'student' %}
     <section id="studentSection">
-        <h2 class="section-title">Thông tin học sinh</h2>
+        <h2 class="section-title">THÔNG TIN CỦA HỌC SINH</h2>
         <ul class="info-list">
             <li>
                 <button id="submitExamBtn">Nộp bài thi</button>
                 <div id="uploadSection" style="display: none; margin-top: 10px;">
-                  <input type="file" id="examImage" accept="image/*">
-                  <button id="uploadExamBtn">Tải lên bài thi</button>
+                    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_exam' %}">
+                        {% csrf_token %}
+                        <input type="file" id="examImage" name="exam_file" accept="image/*">
+                        <button type="submit" id="uploadExamBtn">Tải lên bài thi</button>
+                    </form>
                 </div>
             </li>
             <li><button>Xem kết quả</button></li>
         </ul>
     </section>
-
+            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
+    {% else %}
+    <!-- Trang chưa đăng nhập -->
     <div id="showForm">
         <section class="features">
             <h2>Chức năng chính</h2>
             <div class="feature-item">📌 Chấm điểm tự động</div>
             <div class="feature-item">📊 Đánh giá kết quả</div>
         </section>
-    
+
         <section class="statistics">
             <h2>Thống kê nổi bật</h2>
             <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
             <div class="stat-item">🎯 95% độ chính xác</div>
             <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
         </section>
-    
+
         <section class="contact">
             <h2>Liên hệ</h2>
             <p><i class="fa fa-envelope"></i> Email: domdom@gmail.com</p>
             <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
         </section>
-    
+
         <footer>
             <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
         </footer>
-    
-        <div id="loginForm" class="hidden">
-            <div id="login">
-                <h2>Đăng nhập</h2>
-                <button type="button" class="close" onclick="closeLoginForm()">+</button>
-                <input type="text" id="username" placeholder="Tên đăng nhập">
-                <input type="password" id="password" placeholder="Mật khẩu">
-                <button type="submit" class="btn-login">Đăng nhập</button>
-            </div>
-        </div>
+
+            <form method="POST" action="{% url 'login' %}" id="loginForm" style="display: none;">
+                <div id="login">
+                    {% csrf_token %}
+                    <h2>Đăng nhập</h2> 
+                    <button type="button" class="close" onclick="closeLoginForm()">+</button>                  
+                    <input type="text" name="username" placeholder="Tên đăng nhập" required autocomplete="username">
+                    <input type="password" name="password" placeholder="Mật khẩu" required autocomplete="current-password">
+                    <button type="submit" class="btn-login ">Đăng nhập</button>
+                </div>
+            </form>            
     </div>
+    {% endif %}
+    <div id="themeToggle" class="theme-toggle">
+        <i class="fa-solid fa-moon"></i>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

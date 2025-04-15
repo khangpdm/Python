@@ -41,18 +41,24 @@ class DeThiChiTiet(models.Model):
         managed = False  # Vì bảng đã có sẵn trong database
 
 
+
+# models.py
 from django.db import models
 
 class GiaoVien(models.Model):
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+    id = models.AutoField(primary_key=True)
+    ten_dang_nhap = models.CharField(max_length=50, unique=True)
+    mat_khau = models.CharField(max_length=255)
 
     class Meta:
-        db_table = 'giao_vien'  # trỏ đến bảng có sẵn
+        db_table = 'giao_vien'
+        managed = False
 
 class HocSinh(models.Model):
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+    id = models.AutoField(primary_key=True)
+    ten_dang_nhap = models.CharField(max_length=50, unique=True)
+    mat_khau = models.CharField(max_length=255)
 
     class Meta:
-        db_table = 'hoc_sinh'  # trỏ đến bảng có sẵn
+        db_table = 'hoc_sinh'
+        managed = False

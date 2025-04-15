@@ -29,4 +29,9 @@ urlpatterns = [
     path('tao-de-thi/', views.tao_de_thi, name='tao_de_thi'),
     path('de-thi/<int:de_thi_id>/', views.chi_tiet_de_thi, name='chi_tiet_de_thi'),
     path('de-thi/<int:id>/', views.xem_de_thi, name='xem_de_thi'),
+    path('', views.home_view, name='home'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('upload-exam/', views.upload_exam, name='upload_exam'),
+
 ]

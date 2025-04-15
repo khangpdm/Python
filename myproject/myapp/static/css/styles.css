@@ -147,7 +147,7 @@ footer {
 }
 
 #loginForm {
-    display: none;
+    transition: opacity 0.3s ease;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 10;
     width: 100%;
@@ -155,9 +155,8 @@ footer {
     position: fixed;
     top: 0;
     left: 0;
-    justify-content: center;
-    align-items: center;
 }
+
 
 #loginForm div {
     background: white;
@@ -167,12 +166,16 @@ footer {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     width: 300px;
     display: flex;
+    margin: 100px auto;
+    justify-content: center;
     flex-direction: column;
 }
 
 #login h2 {
     margin-bottom: 15px;
 }
+
+
 
 #login input {
     padding: 10px;
@@ -200,34 +203,197 @@ footer {
     transform: rotate(45deg);
 }
 
-#teacherSection, #studentSection {
-    display: none;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px auto;
-    width: 70%;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+/* Teacher Section */
+/* Teacher Section */
+/* Animation fadeIn */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-#teacherSection, #studentSection {
-    display: none;
-}
-.hidden{
-    display: none;
-}
-   
 
+/* Teacher Section và Student Section */
 #teacherSection, #studentSection {
+ /* Ẩn mặc định */
+    background: #1d6e9b7a; /* Nền xanh lam trong suốt */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 80%;
+    max-width: 1000px;
+    margin: 40px auto;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    animation: fadeIn 0.8s ease-in-out;
+}
+#teacherSection h2{
+    margin-bottom: 30px;
+}
+#studentSection h2{
+    margin-bottom: 30px;
+}
+
+/* Teacher Section - Grid cho các nút */
+#teacherSection ul {
+    list-style: none;
+    display: block
+}
+
+/* Student Section - Flex dọc cho các nút */
+#studentSection ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+}
+
+/* Style chung cho các nút */
+#teacherSection ul li button,
+#studentSection ul li button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin: 10px 0; 
+}
+
+/* Hiệu ứng hover cho nút */
+#teacherSection ul li button:hover,
+#studentSection ul li button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #teacherSection, #studentSection {
+        width: 90%;
+        padding: 20px;
+    }
+
+    #teacherSection ul {
+        grid-template-columns: 1fr;
+    }
+
+    #teacherSection ul li button,
+    #studentSection ul li button {
+        font-size: 14px;
+        padding: 12px 15px;
+    }
+}
+
+
+/* Animation fadeIn */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#studentSection {
     background: #1d6e9b7a;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
     width: 80%;
+    max-width: 1000px;
     margin: 40px auto;
     color: white;
     animation: fadeIn 0.8s ease-in-out;
 }
+
+#studentSection .section-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#studentSection .info-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+}
+
+#studentSection .info-list li button,
+#studentSection .info-list li form button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+    width: 100%;
+}
+
+#studentSection .info-list li button:hover,
+#studentSection .info-list li form button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#uploadSection {
+    margin-top: 10px;
+}
+
+#uploadSection input[type="file"] {
+    display: block;
+    margin: 10px auto;
+    padding: 5px;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+}
+
+#uploadSection button {
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #studentSection {
+        width: 90%;
+        padding: 20px;
+    }
+}
+
+/* #teacherSection, #studentSection {
+    display: none;
+} */
+.hidden{
+    display: none;
+}
+   
+
+
 
 .section-title {
     font-size: 28px;
@@ -347,24 +513,82 @@ th {
     font-weight: bold;
 }
 
-#darkModeToggle {
+
+
+
+
+.theme-toggle {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 12px 14px;
-    font-size: 20px;
-    background-color: #f1f1f1;
-    border: none;
+    width: 50px;
+    height: 50px;
+    background: #ff9900; /* Nền cam giống trong hình */
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #ffd700; /* Màu vàng cho mặt trăng/mặt trời */
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    z-index: 999;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  /* Dark mode style cho nút */
-  body.dark-mode #darkModeToggle {
-    background-color: #333;
-    color: #fff;
-  }
-  
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Chế độ tối */
+body.dark-mode {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode #header {
+    background: #2c3e50;
+}
+
+body.dark-mode #header ul li a {
+    color: white;
+}
+
+body.dark-mode #teacherSection,
+body.dark-mode #studentSection {
+    background: #2c3e50;
+}
+
+
+body.dark-mode #showForm section {
+    background: #2c3e50;
+    color: #e0e0e0;
+}
+
+body.dark-mode #showForm .feature-item,
+body.dark-mode #showForm .stat-item {
+    background: #34495e;
+    color: #e0e0e0;
+}
+
+body.dark-mode #showForm .contact {
+    color: #e0e0e0;
+}
+
+body.dark-mode #showForm footer {
+    color: #b0b0b0;
+}
+
+body.dark-mode #loginForm {
+    background: #2c3e50;
+    color: #e0e0e0;
+}
+
+body.dark-mode #loginForm input {
+    background: #34495e;
+    color: #e0e0e0;
+    border-color: #555;
+}
+
+body.dark-mode #loginForm .btn-login {
+    background: #4a90e2;
+}
+
+/* Responsive */
