@@ -58,7 +58,23 @@ def tao_de_thi(request):
     if request.method == 'POST':
         ma_de = request.POST.get('ma_de')
         ten_de = request.POST.get('ten_de')
-        id_giao_vien = request.POST.get('id_giao_vien') or 1  # hardcoded tạm
+        
+        # Lấy username từ session
+        username = request.session.get('username')
+        role = request.session.get('role')
+
+        # Kiểm tra đăng nhập và quyền giáo viên
+        if not username or role != 'teacher':
+            messages.error(request, 'Bạn cần đăng nhập với tư cách giáo viên để tạo đề.')
+            return redirect('login')  # hoặc render('taodethi.html') tùy bạn
+
+        # Tìm giáo viên theo username
+        try:
+            giao_vien = GiaoVien.objects.get(ten_dang_nhap=username)
+            id_giao_vien = giao_vien.id
+        except GiaoVien.DoesNotExist:
+            messages.error(request, 'Không tìm thấy giáo viên.')
+            return render(request, 'taodethi.html')
 
         # Kiểm tra mã đề đã tồn tại chưa
         if DeThi.objects.filter(ma_de=ma_de).exists():

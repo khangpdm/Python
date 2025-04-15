@@ -1,39 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">  
-    <title>Danh sách câu hỏi</title>
-</head>
-<body>
-    <h2>Danh sách câu hỏi</h2>
-    <a href="{% url 'them_cau_hoi' %}">➕ Thêm câu hỏi</a>
-    <table border="1">
-        <tr>
-            <th>Nội dung</th>
-            <th>A</th>
-            <th>B</th>
-            <th>C</th>
-            <th>D</th>
-            <th>Đáp án đúng</th>
-            <th>Hành động</th>
-        </tr>
-        {% for cauhoi in danh_sach_cau_hoi %}
-        <tr>
-            <td>{{ cauhoi.noi_dung }}</td>
-            <td>{{ cauhoi.dap_an_A }}</td>
-            <td>{{ cauhoi.dap_an_B }}</td>
-            <td>{{ cauhoi.dap_an_C }}</td>
-            <td>{{ cauhoi.dap_an_D }}</td>
-            <td>{{ cauhoi.dap_an_dung }}</td>
-            <td>
-                <a href="{% url 'sua_cau_hoi' cauhoi.id %}">✏️</a>
-                <a href="{% url 'xoa_cau_hoi' cauhoi.id %}">🗑️</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">  
+<h2>Danh sách câu hỏi</h2>
+<a href="{% url 'them_cau_hoi' %}">➕ Thêm câu hỏi</a>
+<table border="1">
+    <tr>
+        <th>Nội dung</th>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+        <th>D</th>
+        <th>Đáp án đúng</th>
+        <th>Hành động</th>
+    </tr>
+    {% for cauhoi in danh_sach_cau_hoi %}
+    <tr>
+        <td>{{ cauhoi.noi_dung }}</td>
+        <td>{{ cauhoi.dap_an_A }}</td>
+        <td>{{ cauhoi.dap_an_B }}</td>
+        <td>{{ cauhoi.dap_an_C }}</td>
+        <td>{{ cauhoi.dap_an_D }}</td>
+        <td>{{ cauhoi.dap_an_dung }}</td>
+        <td>
+            <a href="{% url 'sua_cau_hoi' cauhoi.id %}">✏️</a>
+            <a href="{% url 'xoa_cau_hoi' cauhoi.id %}">🗑️</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

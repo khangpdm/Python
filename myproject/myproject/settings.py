@@ -90,7 +90,7 @@ DATABASES = {
         'USER': 'root',       # Tên người dùng MySQL
         'PASSWORD': '',       # Mật khẩu MySQL nếu có
         'HOST': 'localhost',  # Địa chỉ của cơ sở dữ liệu
-        'PORT': '3307',       # Cổng MySQL
+        'PORT': '3306',       # Cổng MySQL
     }
 }
 

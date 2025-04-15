@@ -30,10 +30,10 @@
         <section id="teacherSection" >
             <h2>PHẦN ĐIỀU KHIỂN CỦA GIÁO VIÊN</h2>
             <ul>
-                <li><button>Quản lý đề thi</button></li>
-                <li><button>Quản lý câu hỏi</button></li>
-                <li><button>Xem kết quả học sinh</button></li>
-                <li><button>Xuất báo cáo</button></li>
+                <li><a href="{% url 'tao_de_thi' %}"><button>Quản lý đề thi</button></a></li>
+                <li><a href="{% url 'cau_hoi_list' %}"><button>Quản lý câu hỏi</button></a></li>
+                <li><a href="{% url 'upload_exam' %}"><button>Xem kết quả học sinh</button></a></li>
+                <li><a href="#"><button>Xuất báo cáo</button></a></li>
             </ul>
             <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
         </section>
