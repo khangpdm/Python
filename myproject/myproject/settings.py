@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tnonline_5_4',  # Đảm bảo tên cơ sở dữ liệu là đúng
+        'NAME': 'tnonlinefix',  # Đảm bảo tên cơ sở dữ liệu là đúng
         'USER': 'root',       # Tên người dùng MySQL
         'PASSWORD': '',       # Mật khẩu MySQL nếu có
         'HOST': 'localhost',  # Địa chỉ của cơ sở dữ liệu
