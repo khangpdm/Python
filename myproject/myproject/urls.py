@@ -32,7 +32,8 @@ urlpatterns = [
     path('danh-sach-de-thi/', views.danh_sach_de_thi, name='danh_sach_de_thi'),
     path('de-thi/<int:id>/', views.xem_de_thi, name='xem_de_thi'),  # Xem chi tiết đề thi
     path('xoa-de-thi/<int:id>/', views.xoa_de_thi, name='xoa_de_thi'),
-
+    path('xuat-pdf-de-thi/<int:id>/', views.xuat_pdf_de_thi, name='xuat_pdf_de_thi'),
+    
     path('', views.home_view, name='home'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

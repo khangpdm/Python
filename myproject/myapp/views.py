@@ -147,9 +147,51 @@ def xoa_de_thi(request, id):
 
 
 
+import os
+from fpdf import FPDF
+import io
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from .models import DeThi, DeThiChiTiet
 
+def xuat_pdf_de_thi(request, id):
+    de_thi = get_object_or_404(DeThi, pk=id)
 
+    # Lấy danh sách câu hỏi theo thứ tự đã lưu
+    danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi=de_thi).select_related('cau_hoi').order_by('thu_tu')
 
+    # Tạo PDF
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.add_page()
+
+    # Đường dẫn đến font DejaVuSans.ttf trong thư mục static/fonts
+    font_path = os.path.join('static', 'fonts', 'DejaVuSans.ttf')
+
+    # Thêm font hỗ trợ Unicode
+    pdf.add_font('DejaVu', '', font_path, uni=True)
+    pdf.set_font('DejaVu', '', 12)
+
+    # In tiêu đề
+    pdf.cell(200, 10, txt=f"ĐỀ THI: {de_thi.ten_de}", ln=True, align='C')
+    pdf.ln(10)
+
+    # In từng câu hỏi và đáp án
+    for ct in danh_sach_cau_hoi:
+        thu_tu = ct.thu_tu
+        cau = ct.cau_hoi
+
+        pdf.multi_cell(0, 10, txt=f"Câu {thu_tu}: {cau.noi_dung}")
+        pdf.cell(0, 10, txt=f"A. {cau.dap_an_A}", ln=True)
+        pdf.cell(0, 10, txt=f"B. {cau.dap_an_B}", ln=True)
+        pdf.cell(0, 10, txt=f"C. {cau.dap_an_C}", ln=True)
+        pdf.cell(0, 10, txt=f"D. {cau.dap_an_D}", ln=True)
+        pdf.ln(5)
+
+    # Trả về file PDF
+    buffer = io.BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename=f"{de_thi.ten_de}.pdf")
 
 
 # views.py

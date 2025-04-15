@@ -24,6 +24,8 @@
                 <td>
                     <a href="{% url 'xem_de_thi' de_thi.id %}" class="btn btn-info btn-sm">Xem</a>
                     <a href="{% url 'xoa_de_thi' de_thi.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Xoá đề này?')">Xoá</a>
+                    <a href="{% url 'xuat_pdf_de_thi' de_thi.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
+
                 </td>
             </tr>
             {% empty %}
