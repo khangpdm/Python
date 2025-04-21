@@ -6,10 +6,26 @@
 }
 
 body {
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #e6f0fa 0%, #d4e4f7 100%); 
+    background-attachment: fixed; 
     text-align: center;
     position: relative;
     overflow-x: hidden;
+    min-height: 100vh; 
+    font-family: Arial, sans-serif;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2%, transparent 2%);
+    background-size: 30px 30px;
+    opacity: 0.5;
+    z-index: -1; /* Place behind content */
 }
 
 header {
@@ -154,6 +170,9 @@ footer {
     position: fixed;
     top: 0;
     left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
@@ -170,8 +189,10 @@ footer {
     flex-direction: column;
 }
 
+
 #login h2 {
     margin-bottom: 15px;
+    color: #333;
 }
 
 
@@ -180,6 +201,7 @@ footer {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
+    border: 1px solid #ccc;
     width: 100%;
 }
 
@@ -189,6 +211,7 @@ footer {
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
+    border: none;
 }
 
 .close {
@@ -200,6 +223,7 @@ footer {
     border: none;
     cursor: pointer;
     transform: rotate(45deg);
+    color: #333;
 }
 
 /* Teacher Section */
@@ -217,47 +241,110 @@ footer {
 }
 
 /* Teacher Section và Student Section */
-#teacherSection, #studentSection {
- /* Ẩn mặc định */
-    background: #1d6e9b7a; /* Nền xanh lam trong suốt */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+#studentSection {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 40px 30px; 
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     text-align: center;
-    width: 80%;
-    max-width: 1000px;
+    width: 90%;
+    max-width: 800px; 
+    margin: 40px auto;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+#studentSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10%);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+
+#teacherSection {
+    background: linear-gradient(135deg, #1e3c72, #2a5298); /* Gradient matching header */
+    padding: 50px 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 90%;
+    max-width: 1200px;
     margin: 40px auto;
     color: white;
     display: flex;
     justify-content: center;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease-in-out;
+}
 
-    animation: fadeIn 0.8s ease-in-out;
+#teacherSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10%);
+    background-size: 20px 20px;
+    opacity: 0.3;
 }
-#teacherSection h2{
-    margin-bottom: 30px;
+
+#teacherSection h2 {
+    margin-bottom: 40px;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
 }
-#studentSection h2{
-    margin-bottom: 30px;
+
+#studentSection h2 {
+    margin-bottom: 30px; 
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
 }
+
 
 /* Teacher Section - Grid cho các nút */
 #teacherSection ul {
     list-style: none;
-    display: block
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    padding: 0;
+    position: relative;
+    z-index: 1;
 }
 
-/* Student Section - Flex dọc cho các nút */
+
 #studentSection ul {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 20px; 
     padding: 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* Style chung cho các nút */
-#teacherSection ul li button,
 #studentSection ul li button {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -274,13 +361,46 @@ footer {
     margin: 10px 0; 
 }
 
+#teacherSection ul li button {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 15px 25px;
+    font-size: 16px;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#teacherSection ul li button::before {
+    content: '\f0a9'; /* FontAwesome icon (cog) */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 14px;
+}
+
 /* Hiệu ứng hover cho nút */
-#teacherSection ul li button:hover,
 #studentSection ul li button:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
+
+#teacherSection ul li button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -307,18 +427,6 @@ footer {
     to { opacity: 1; transform: translateY(0); }
 }
 
-#studentSection {
-    background: #1d6e9b7a;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    width: 80%;
-    max-width: 1000px;
-    margin: 40px auto;
-    color: white;
-    animation: fadeIn 0.8s ease-in-out;
-}
 
 #studentSection .section-title {
     font-size: 24px;
@@ -335,26 +443,41 @@ footer {
 
 #studentSection .info-list li button,
 #studentSection .info-list li form button {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    padding: 15px 20px;
-    font-size: 16px;
+    background: linear-gradient(135deg, #3b72ba, #2a5298);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 25px; 
+    font-size: 15px; 
     color: white;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
     text-transform: uppercase;
-    font-weight: bold;
+    font-weight: 600;
     letter-spacing: 1px;
-    width: 100%;
+    width: auto;
+    max-width: 300px; 
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#studentSection .info-list li button::before,
+#studentSection .info-list li form button::before {
+    content: '\f15c'; 
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 13px;
 }
 
 #studentSection .info-list li button:hover,
 #studentSection .info-list li form button:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #4a90e2, #3b72ba);
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 #uploadSection {
@@ -522,13 +645,13 @@ th {
     right: 20px;
     width: 50px;
     height: 50px;
-    background: #ff9900; /* Nền cam giống trong hình */
+    background: #ff9900; 
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    color: #ffd700; /* Màu vàng cho mặt trăng/mặt trời */
+    color: #ffd700; 
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -539,26 +662,75 @@ th {
 
 /* Chế độ tối */
 body.dark-mode {
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, #121212 0%, #1c2526 100%);
 }
 
+
+
+body.dark-mode::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 2%, transparent 2%);
+    background-size: 30px 30px;
+    opacity: 0.2; 
+}
+
+
 body.dark-mode #header {
-    background: #2c3e50;
+    background: linear-gradient(90deg, #1c2526, #2c3e50); 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 body.dark-mode #header ul li a {
-    color: white;
+    color: #e0e0e0;
 }
+
+
+body.dark-mode #header ul li a:hover {
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+}
+
 
 body.dark-mode #teacherSection,
 body.dark-mode #studentSection {
-    background: #2c3e50;
+    background: linear-gradient(135deg, #1c2526, #2c3e50); 
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); 
+}
+
+body.dark-mode #teacherSection::before,
+body.dark-mode #studentSection::before {
+    opacity: 0.2; 
+}
+
+body.dark-mode #teacherSection h2,
+body.dark-mode #studentSection h2 {
+    color: #e0e0e0;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 
 body.dark-mode #showForm section {
     background: #2c3e50;
     color: #e0e0e0;
+}
+
+body.dark-mode #teacherSection ul li button,
+body.dark-mode #studentSection .info-list li button,
+body.dark-mode #studentSection .info-list li form button {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+
+body.dark-mode #teacherSection ul li button:hover,
+body.dark-mode #studentSection .info-list li button:hover,
+body.dark-mode #studentSection .info-list li form button:hover {
+    background: linear-gradient(135deg, #4a90e2, #34495e);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
 }
 
 body.dark-mode #showForm .feature-item,
@@ -576,8 +748,29 @@ body.dark-mode #showForm footer {
 }
 
 body.dark-mode #loginForm {
-    background: #2c3e50;
+    background: rgba(0, 0, 0, 0.9); 
+}
+
+body.dark-mode #loginForm div {
+    background: linear-gradient(135deg, #1c2526, #2c3e50);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+body.dark-mode #login h2 {
     color: #e0e0e0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode #login input {
+    background: #121212;
+    color: #e0e0e0;
+    border-color: #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode #login input:focus {
+    border-color: #ffd700; 
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
 body.dark-mode #loginForm input {
@@ -586,40 +779,68 @@ body.dark-mode #loginForm input {
     border-color: #555;
 }
 
-body.dark-mode #loginForm .btn-login {
-    background: #4a90e2;
+body.dark-mode .btn-login {
+    background: linear-gradient(135deg, #ffd700, #ff9900); 
+    color: #121212; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
+body.dark-mode .btn-login:hover {
+    background: linear-gradient(135deg, #ffea00, #ffd700);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+body.dark-mode .close {
+    color: #e0e0e0;
+}
+
+body.dark-mode .info-list li {
+    color: #e0e0e0;
+}
+
+body.dark-mode .info-list li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-mode .info-list button {
+    background: linear-gradient(135deg, #2c3e50, #34495e); 
+    color: #e0e0e0;
+}
+body.dark-mode .info-list button:hover {
+    background: linear-gradient(135deg, #4a90e2, #34495e);
+    transform: scale(1.05);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .banner {
+    background: #1c2526;
+    color: #e0e0e0;
+}
+
+body.dark-mode .banner-btn {
+    background: #ffd700;
+    color: #121212;
+}
+
+body.dark-mode .banner-btn:hover {
+    background: #ffea00;
+}
+
+body.dark-mode .theme-toggle {
+    background: #ffd700; 
+    color: #121212;
+}
+body.dark-mode .theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
 /* Responsive */
-
-/*Chi tiết đề thi*/
-.cau-hoi {
-    background: #fff;
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.cau-hoi strong {
-    display: block;
-    margin-bottom: 10px;
-    color: #34495e;
-}
-.dapan {
-    margin-left: 20px;
-}
-.dapan p {
-    margin: 4px 0;
-}
-.tao-de-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    margin-top: 20px;
-}
-.tao-de-btn:hover {
-    background: #2980b9;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
