@@ -86,7 +86,7 @@ def tao_de_thi(request):
                 ma_de=ma_de,
                 ten_de=ten_de,
                 ngay_tao=timezone.now(),
-                id_giao_vien=id_giao_vien
+                id_giao_vien=giao_vien
             )
 
             # Random 50 câu hỏi
