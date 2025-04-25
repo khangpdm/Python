@@ -252,7 +252,8 @@ def home_view(request):
     context = {
         'role': role,
         'username': username,
-        'login_success': login_success
+        'login_success': login_success,
+        'exams': exams
     }
     return render(request, 'index.html', context)
 
