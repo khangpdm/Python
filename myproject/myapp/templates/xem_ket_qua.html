@@ -1,0 +1,27 @@
+<h2>Danh sách bài làm của bạn</h2>
+{% if ket_qua_bai_lam %}
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID Bài làm</th>
+            <th>Tên đề thi</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+            <th>Điểm</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bl in ket_qua_bai_lam %}
+        <tr>
+            <td>{{ bl.0 }}</td>
+            <td>{{ bl.1 }}</td>
+            <td>{{ bl.2|date:"d/m/Y H:i" }}</td>
+            <td>{{ bl.3 }}</td>
+            <td>{{ bl.4 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Bạn chưa có bài làm nào.</p>
+{% endif %}
