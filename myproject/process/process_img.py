@@ -126,7 +126,7 @@ def get_correct_answer(question_id):
             host='localhost',
             user='root',
             password='',
-            database='tnonline'
+            database='tnonlinefix'
         )
         cursor = connection.cursor()
         
@@ -147,14 +147,14 @@ def get_correct_answer(question_id):
             cursor.close()
             connection.close()
 
-def save_answers_to_db(answers):
+def save_answers_to_db(answers, id_bai_lam):
     # Kết nối đến cơ sở dữ liệu
     try:
         connection = mysql.connector.connect(
             host='localhost',  
             user='root',  
             password='',  
-            database='tnonline' 
+            database='tnonlinefix' 
         )
         cursor = connection.cursor()
         
@@ -175,8 +175,7 @@ def save_answers_to_db(answers):
             # Insert câu trả lời vào bảng chi_tiet_bai_lam
             sql = "INSERT INTO chi_tiet_bai_lam (id_bai_lam, id_cau_hoi, cau_tra_loi, ket_qua) VALUES (%s, %s, %s, %s)"
             
-            # Thay '1' bằng id_bai_lam thực tế nếu cần
-            values = (1, question, combined_answer, ket_qua)  # 1 là id_bai_lam, question là id_cau_hoi, combined_answer là câu trả lời, ket_qua là kết quả
+            values = (id_bai_lam, question, combined_answer, ket_qua)  # id_bai_lam, question, combined_answer, ket_qua
             cursor.execute(sql, values)
 
         connection.commit()  # Xác nhận giao dịch
@@ -189,9 +188,45 @@ def save_answers_to_db(answers):
             cursor.close()
             connection.close()
 
-if __name__ == '__main__':
+def calculate_total_score(answers):
+    # Tính tổng số câu đúng và quy đổi điểm tối đa 10 cho 120 câu
+    total_correct = 0
+    total_questions = 120  # Tổng số câu hỏi tối đa
+    for question, answer_list in answers.items():
+        if len(answer_list) == 1:
+            answer = answer_list[0]
+            correct_answer = get_correct_answer(question)
+            if answer == correct_answer:
+                total_correct += 1
+    scaled_score = (total_correct / total_questions) * 10
+    return round(scaled_score, 2)
+
+def save_total_score_to_db(id_bai_lam, total_score):
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='tnonlinefix'
+        )
+        cursor = connection.cursor()
+        # Giả sử bảng ket_qua có các trường id_bai_lam và diem
+        sql = "INSERT INTO ket_qua (id_bai_lam, diem) VALUES (%s, %s) ON DUPLICATE KEY UPDATE diem = %s"
+        values = (id_bai_lam, total_score, total_score)
+        cursor.execute(sql, values)
+        connection.commit()
+        print("Điểm tổng đã được lưu vào cơ sở dữ liệu.")
+    except mysql.connector.Error as err:
+        print(f"Lỗi khi lưu điểm tổng: {err}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+def grade_exam(image_path, id_bai_lam):
+    import cv2
     # Tải ảnh từ đường dẫn cụ thể
-    img = cv2.imread('D:/Python/Python-main/myproject/process/1.jpg')  # Sửa lại đường dẫn
+    img = cv2.imread(image_path)
     
     # Trích xuất các khối đáp án
     list_ans_boxes = crop_image(img)
@@ -210,4 +245,10 @@ if __name__ == '__main__':
         print(f"Câu hỏi {question}: {', '.join(answer)}")
 
     # Lưu câu trả lời vào cơ sở dữ liệu
-    save_answers_to_db(answers)
+    save_answers_to_db(answers, id_bai_lam)
+    total_score = calculate_total_score(answers)
+    save_total_score_to_db(id_bai_lam, total_score)
+
+if __name__ == '__main__':
+    # Example usage
+    grade_exam('D:/Python/Python-main/myproject/process/1.jpg', 3)
