@@ -21,6 +21,7 @@ class NganHangCauHoi(models.Model):
         db_table = 'ngan_hang_cau_hoi'
         
 class DeThi(models.Model):
+    id = models.AutoField(primary_key=True)
     ten_de = models.CharField(max_length=255)
     ma_de = models.CharField(max_length=20)
     ngay_tao = models.DateTimeField(auto_now_add=True)
@@ -40,6 +41,14 @@ class DeThiChiTiet(models.Model):
         db_table = 'de_thi_chi_tiet'
         managed = False  # Vì bảng đã có sẵn trong database
 
+class KetQua(models.Model):
+    id = models.AutoField(primary_key=True)
+    id_bai_lam = models.IntegerField(null=True, blank=True)
+    diem = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'ket_qua'
+        managed = False
 
 
 # models.py
