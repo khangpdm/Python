@@ -38,23 +38,34 @@
             <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
         </section>
 
-    {% elif role == 'student' %}
-    <section id="studentSection">
-        <h2 class="section-title">THÔNG TIN CỦA HỌC SINH</h2>
-        <ul class="info-list">
-            <li>
-                <button id="submitExamBtn">Nộp bài thi</button>
-                <div id="uploadSection" style="display: none; margin-top: 10px;">
-                    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_exam' %}">
-                        {% csrf_token %}
-                        <input type="file" id="examImage" name="exam_file" accept="image/*">
-                        <button type="submit" id="uploadExamBtn">Tải lên bài thi</button>
-                    </form>
-                </div>
-            </li>
-            <li><button>Xem kết quả</button></li>
-        </ul>
-    </section>
+        {% elif role == 'student' %}
+        <section id="studentSection">
+            <h2 class="section-title">THÔNG TIN CỦA HỌC SINH</h2>
+            <ul class="info-list">
+                <li>
+                    <button id="submitExamBtn" onclick="submitExam()">Nộp bài thi</button>
+                    <div id="uploadSection" style="display: none; margin-top: 10px;">
+                        <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_exam' %}">
+                            {% csrf_token %}
+                            <label for="selected_exam">Chọn đề thi:</label>
+                            <select id="selected_exam" name="selected_exam" required>
+                                <option value="" disabled selected>-- Vui lòng chọn đề thi --</option>
+                                {% if exams %}
+                                    {% for exam in exams %}
+                                        <option value="{{ exam.id }}">{{ exam.ten_de}}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option disabled>Không có đề thi nào được tìm thấy</option>
+                                {% endif %}
+                            </select>
+                            <input type="file" id="examImage" name="exam_file" accept="image/*" required>
+                            <button type="submit" id="uploadExamBtn">Tải lên bài thi</button>
+                        </form>
+                    </div>
+                </li>
+                <li><a href="{% url 'xem_ket_qua' %}"><button>Xem kết quả</button></a></li>
+            </ul>
+        </section>
             <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
     {% else %}
     <!-- Trang chưa đăng nhập -->
