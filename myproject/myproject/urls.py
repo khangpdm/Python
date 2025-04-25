@@ -21,7 +21,7 @@ from myapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
+    path('', views.home_view, name='home'),
     path('cau-hoi/', cau_hoi_list, name='cau_hoi_list'),  # Thêm đường dẫn mới
     path('cau-hoi/them/', views.them_cau_hoi, name='them_cau_hoi'),
     path('cau-hoi/sua/<int:id>/', views.sua_cau_hoi, name='sua_cau_hoi'),
@@ -38,5 +38,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('upload-exam/', views.upload_exam, name='upload_exam'),
+    path('xem-ket-qua/', views.xem_ket_qua, name='xem_ket_qua'),
 
 ]
