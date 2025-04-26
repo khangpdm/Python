@@ -433,7 +433,7 @@ def xuat_pdf_de_thi(request, de_thi_id):
 
     de_thi = get_object_or_404(DeThi, id=de_thi_id)
     danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi=de_thi).order_by('thu_tu')
-    
+
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
 
@@ -517,3 +517,60 @@ def xem_pdf_de_thi(request, de_thi_id):
         return redirect('danh_sach_de_thi')
 
     return FileResponse(open(pdf_path, 'rb'), content_type='application/pdf')
+
+
+
+from django.db import connection
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import HocSinh, DeThi, NganHangCauHoi, KetQua, GiaoVien
+
+def chi_tiet_bai_lam(request, bai_lam_id):
+    username = request.session.get('username')
+    role = request.session.get('role')
+    if not username:
+        messages.error(request, 'Bạn cần đăng nhập để xem chi tiết bài làm.')
+        return redirect('login')
+
+    if role == 'student':
+        hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam FROM bai_lam WHERE id = %s AND id_hoc_sinh = %s", [bai_lam_id, hoc_sinh.id])
+            bai_lam = cursor.fetchone()
+            if not bai_lam:
+                messages.error(request, 'Bài làm không tồn tại hoặc không thuộc về bạn.')
+                return redirect('xem_ket_qua')
+    else:
+        GiaoVien.objects.get(ten_dang_nhap=username)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam FROM bai_lam WHERE id = %s", [bai_lam_id])
+            bai_lam = cursor.fetchone()
+            if not bai_lam:
+                messages.error(request, 'Bài làm không tồn tại.')
+                return redirect('xem_ket_qua_giao_vien')
+
+    id_bai_lam, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam = bai_lam
+    de_thi = DeThi.objects.get(id=id_de)
+    hoc_sinh = HocSinh.objects.get(id=id_hoc_sinh)
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT id_cau_hoi, cau_tra_loi, ket_qua FROM chi_tiet_bai_lam WHERE id_bai_lam = %s", [id_bai_lam])
+        chi_tiet = cursor.fetchall()
+
+    ket_qua_chi_tiet = []
+    for ct in chi_tiet:
+        id_cau_hoi, cau_tra_loi, ket_qua = ct
+        cau_hoi = NganHangCauHoi.objects.get(id=id_cau_hoi)
+        ket_qua_chi_tiet.append({
+            'cau_hoi': cau_hoi,
+            'cau_tra_loi': cau_tra_loi,
+            'dap_an_dung': cau_hoi.dap_an_dung,
+            'ket_qua': ket_qua
+        })
+
+    ket_qua = KetQua.objects.filter(id_bai_lam=id_bai_lam).first()
+    return render(request, 'chi_tiet_bai_lam.html', {
+        'bai_lam': {'id': id_bai_lam, 'de_thi': de_thi, 'hoc_sinh': hoc_sinh, 'ngay_nop': ngay_nop, 'trang_thai': trang_thai, 'hinh_anh': hinh_anh_bai_lam, 'diem': ket_qua.diem if ket_qua else None},
+        'chi_tiet': ket_qua_chi_tiet,
+        'role': role
+    })

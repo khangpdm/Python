@@ -1,0 +1,29 @@
+<h2>Chi tiết bài làm #{{ bai_lam.id }}</h2>
+<p><strong>Đề thi:</strong> {{ bai_lam.de_thi.ten_de }}</p>
+<p><strong>Điểm:</strong> {{ bai_lam.diem|default:"Chưa chấm" }}</p>
+
+<h3>Hình ảnh bài thi</h3>
+<img src="/media/exam_submissions/{{ bai_lam.hinh_anh|basename }}" alt="Hình ảnh bài thi" style="max-width: 100%;">
+
+<h3>Đáp án nhận diện</h3>
+<table border="1">
+    <tr>
+        <th>Câu hỏi</th>
+        <th>Đáp án chọn</th>
+        <th>Đáp án đúng</th>
+        <th>Kết quả</th>
+    </tr>
+    {% for ct in chi_tiet %}
+    <tr>
+        <td>{{ ct.cau_hoi.noi_dung }}</td>
+        <td>{{ ct.cau_tra_loi }}</td>
+        <td>{{ ct.dap_an_dung }}</td>
+        <td>{{ ct.ket_qua }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">Không có dữ liệu.</td></tr>
+    {% endfor %}
+</table>
+
+<a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success">Xuất báo cáo PDF</a>
+<a href="{% url 'xem_ket_qua' %}">← Quay lại</a>
