@@ -39,5 +39,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('upload-exam/', views.upload_exam, name='upload_exam'),
     path('xem-ket-qua/', views.xem_ket_qua, name='xem_ket_qua'),
-
+    path('xuat_pdf_de_thi/<int:de_thi_id>/', views.xuat_pdf_de_thi, name='xuat_pdf_de_thi'),
+    path('xem_pdf_de_thi/<int:de_thi_id>/', views.xem_pdf_de_thi, name='xem_pdf_de_thi'),
 ]

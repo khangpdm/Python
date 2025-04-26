@@ -391,3 +391,129 @@ def xem_ket_qua(request):
             ket_qua_bai_lam.append((id_bai_lam, ten_de, ngay_nop, trang_thai, None))
 
     return render(request, 'xem_ket_qua.html', {'ket_qua_bai_lam': ket_qua_bai_lam})
+
+
+
+
+# views.py
+import os
+from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from io import BytesIO
+from .models import DeThi, DeThiChiTiet
+
+def draw_wrapped_text(canvas, text, x, y, max_width, line_height):
+    text = str(text).encode('utf-8').decode('utf-8')
+    words = text.split()
+    line = ""
+    for word in words:
+        if canvas.stringWidth(line + word, 'DejaVuSans', 12) < max_width:
+            line += word + " "
+        else:
+            canvas.drawString(x, y, line.strip())
+            y -= line_height
+            line = word + " "
+    if line:
+        canvas.drawString(x, y, line.strip())
+    return y
+
+def xuat_pdf_de_thi(request, de_thi_id):
+    # Kiểm tra quyền giáo viên
+    username = request.session.get('username')
+    role = request.session.get('role')
+    if not username or role != 'teacher':
+        messages.error(request, 'Bạn cần đăng nhập với tư cách giáo viên để xuất PDF.')
+        return redirect('login')
+
+    de_thi = get_object_or_404(DeThi, id=de_thi_id)
+    danh_sach_cau_hoi = DeThiChiTiet.objects.filter(de_thi=de_thi).order_by('thu_tu')
+    
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+
+    # Thêm font hỗ trợ tiếng Việt
+    font_path = os.path.join(settings.BASE_DIR, 'myapp', 'static', 'fonts', 'DejaVuSans.ttf')
+    if not os.path.exists(font_path):
+        raise FileNotFoundError(f"Font file not found at {font_path}. Please ensure DejaVuSans.ttf is placed in the myapp/static/fonts/ directory.")
+    pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+    p.setFont('DejaVuSans', 12)
+
+    # Ghi tiêu đề
+    title = f"Đề thi: {de_thi.ten_de}"
+    date = f"Ngày tạo: {de_thi.ngay_tao.strftime('%d/%m/%Y %H:%M')}"
+    p.drawString(2 * cm, 28 * cm, title.encode('utf-8').decode('utf-8'))
+    p.drawString(2 * cm, 27 * cm, date.encode('utf-8').decode('utf-8'))
+    p.drawString(2 * cm, 26 * cm, "-" * 50)
+
+    # Ghi danh sách câu hỏi
+    y_position = 25 * cm
+    for idx, chitiet in enumerate(danh_sach_cau_hoi, 1):
+        cau_hoi = chitiet.cau_hoi
+        y_position = draw_wrapped_text(p, f"Câu {idx}: {cau_hoi.noi_dung}", 2 * cm, y_position, 18 * cm, 0.5 * cm)
+        y_position -= 1 * cm
+        y_position = draw_wrapped_text(p, f"A. {cau_hoi.dap_an_A}", 3 * cm, y_position, 17 * cm, 0.5 * cm)
+        y_position -= 0.5 * cm
+        y_position = draw_wrapped_text(p, f"B. {cau_hoi.dap_an_B}", 3 * cm, y_position, 17 * cm, 0.5 * cm)
+        y_position -= 0.5 * cm
+        y_position = draw_wrapped_text(p, f"C. {cau_hoi.dap_an_C}", 3 * cm, y_position, 17 * cm, 0.5 * cm)
+        y_position -= 0.5 * cm
+        y_position = draw_wrapped_text(p, f"D. {cau_hoi.dap_an_D}", 3 * cm, y_position, 17 * cm, 0.5 * cm)
+        y_position -= 1.5 * cm
+
+        # Nếu hết trang, tạo trang mới
+        if y_position < 2 * cm:
+            p.showPage()
+            p.setFont('DejaVuSans', 12)
+            y_position = 28 * cm
+
+    # Kết thúc và lưu PDF
+    p.showPage()
+    p.save()
+
+    # Lưu file PDF vào thư mục media/pdfs/
+    pdf_dir = os.path.join(settings.MEDIA_ROOT, 'pdfs')
+    os.makedirs(pdf_dir, exist_ok=True)
+    pdf_filename = f"DeThi_{de_thi.ma_de}.pdf"
+    pdf_path = os.path.join(pdf_dir, pdf_filename)
+
+    with open(pdf_path, 'wb') as f:
+        f.write(buffer.getvalue())
+
+    # Trả về file PDF để tải
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="DeThi_{de_thi.ma_de}.pdf"'
+    return response
+
+
+# views.py
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+
+def xem_pdf_de_thi(request, de_thi_id):
+    # Kiểm tra quyền giáo viên
+    username = request.session.get('username')
+    role = request.session.get('role')
+    if not username or role != 'teacher':
+        messages.error(request, 'Bạn cần đăng nhập với tư cách giáo viên để xem PDF.')
+        return redirect('login')
+
+    # Lấy thông tin đề thi
+    de_thi = get_object_or_404(DeThi, id=de_thi_id)
+
+    # Đường dẫn đến file PDF
+    pdf_filename = f"DeThi_{de_thi.ma_de}.pdf"
+    pdf_path = os.path.join(settings.MEDIA_ROOT, 'pdfs', pdf_filename)
+
+    # Kiểm tra file PDF tồn tại
+    if not os.path.exists(pdf_path):
+        messages.error(request, 'File PDF không tồn tại. Vui lòng xuất PDF trước.')
+        return redirect('danh_sach_de_thi')
+
+    return FileResponse(open(pdf_path, 'rb'), content_type='application/pdf')
