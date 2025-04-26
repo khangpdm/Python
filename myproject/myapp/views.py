@@ -197,8 +197,6 @@ def xuat_pdf_de_thi(request, id):
     return FileResponse(buffer, as_attachment=True, filename=f"{de_thi.ten_de}.pdf")
 
 
-# views.py
-# views.py
 
 
 # views.py
@@ -328,6 +326,7 @@ def upload_exam(request):
             filename = fs.save(exam_file.name, exam_file)
             file_path = fs.path(filename)
 
+            # Lưu bài làm vào cơ sở dữ liệu trước
             with connection.cursor() as cursor:
                 cursor.execute(
                     "INSERT INTO bai_lam (id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam) VALUES (%s, %s, %s, %s, %s)",
@@ -335,21 +334,25 @@ def upload_exam(request):
                 )
                 bai_lam_id = cursor.lastrowid
 
-            messages.success(request, f'Đã nộp bài thi: {exam_file.name} (bài làm id: {bai_lam_id})')
+            # Xử lý hình ảnh bài thi với xử lý lỗi
+            try:
+                process_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'process')
+                if process_dir not in sys.path:
+                    sys.path.insert(0, process_dir)
+                process_img_path = os.path.join(process_dir, 'process_img.py')
+                spec = importlib.util.spec_from_file_location("process_img", process_img_path)
+                process_img = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(process_img)
+                
+                image_path = file_path
+                process_img.grade_exam(image_path, bai_lam_id)
+                messages.success(request, f'Đã nộp và xử lý bài thi: {exam_file.name} (bài làm id: {bai_lam_id})')
+            except FileNotFoundError as e:
+                messages.error(request, f"Lỗi: Không tìm thấy file mô hình tại {str(e)}")
+            except Exception as e:
+                messages.error(request, f"Lỗi xử lý bài thi: {str(e)}")
 
-            import os
-            import sys
-            process_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'process')
-            if process_dir not in sys.path:
-                sys.path.insert(0, process_dir)
-            process_img_path = os.path.join(process_dir, 'process_img.py')
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("process_img", process_img_path)
-            process_img = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(process_img)
-            image_path = file_path
-            process_img.grade_exam(image_path, bai_lam_id)
-            return redirect('home')
+            return redirect('xem_ket_qua')  # Chuyển hướng dù có lỗi hay không
         else:
             messages.error(request, 'Vui lòng chọn file để nộp.')
             return redirect('home')
@@ -574,3 +577,120 @@ def chi_tiet_bai_lam(request, bai_lam_id):
         'chi_tiet': ket_qua_chi_tiet,
         'role': role
     })
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from io import BytesIO
+from .models import HocSinh, DeThi, KetQua
+from django.db import connection
+
+def xuat_bao_cao_ket_qua(request, bai_lam_id):
+    username = request.session.get('username')
+    role = request.session.get('role')
+    if not username:
+        messages.error(request, 'Bạn cần đăng nhập để xuất báo cáo.')
+        return redirect('login')
+
+    # Kiểm tra quyền truy cập
+    if role == 'student':
+        hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam "
+                "FROM bai_lam WHERE id = %s AND id_hoc_sinh = %s",
+                [bai_lam_id, hoc_sinh.id]
+            )
+            bai_lam = cursor.fetchone()
+            if not bai_lam:
+                messages.error(request, 'Bài làm không tồn tại hoặc không thuộc về bạn.')
+                return redirect('xem_ket_qua')
+    else:
+        GiaoVien.objects.get(ten_dang_nhap=username)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam "
+                "FROM bai_lam WHERE id = %s",
+                [bai_lam_id]
+            )
+            bai_lam = cursor.fetchone()
+            if not bai_lam:
+                messages.error(request, 'Bài làm không tồn tại.')
+                return redirect('xem_ket_qua_giao_vien')
+
+    id_bai_lam, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam = bai_lam
+    de_thi = DeThi.objects.get(id=id_de)
+    hoc_sinh = HocSinh.objects.get(id=id_hoc_sinh)
+
+    # Lấy chi tiết bài làm
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT id_cau_hoi, cau_tra_loi, ket_qua FROM chi_tiet_bai_lam WHERE id_bai_lam = %s",
+            [id_bai_lam]
+        )
+        chi_tiet = cursor.fetchall()
+
+    ket_qua_chi_tiet = []
+    for ct in chi_tiet:
+        id_cau_hoi, cau_tra_loi, ket_qua = ct
+        cau_hoi = NganHangCauHoi.objects.get(id=id_cau_hoi)
+        ket_qua_chi_tiet.append({
+            'cau_hoi': cau_hoi,
+            'cau_tra_loi': cau_tra_loi,
+            'dap_an_dung': cau_hoi.dap_an_dung,
+            'ket_qua': ket_qua
+        })
+
+    ket_qua = KetQua.objects.filter(id_bai_lam=id_bai_lam).first()
+
+    # Tạo PDF
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+
+    # Thêm font hỗ trợ tiếng Việt
+    font_path = os.path.join(settings.BASE_DIR, 'myapp', 'static', 'fonts', 'DejaVuSans.ttf')
+    if not os.path.exists(font_path):
+        raise FileNotFoundError(f"Font file not found at {font_path}.")
+    pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+    p.setFont('DejaVuSans', 12)
+
+    # Ghi tiêu đề
+    p.drawString(2 * cm, 28 * cm, f"BÁO CÁO KẾT QUẢ BÀI LÀM #{id_bai_lam}")
+    p.drawString(2 * cm, 27 * cm, f"Học sinh: {hoc_sinh.ho_ten}")
+    p.drawString(2 * cm, 26 * cm, f"Đề thi: {de_thi.ten_de}")
+    p.drawString(2 * cm, 25 * cm, f"Ngày nộp: {ngay_nop.strftime('%d/%m/%Y %H:%M')}")
+    p.drawString(2 * cm, 24 * cm, f"Điểm: {ket_qua.diem if ket_qua else 'Chưa chấm'}")
+    p.drawString(2 * cm, 23 * cm, "-" * 50)
+
+    # Ghi chi tiết bài làm
+    y_position = 22 * cm
+    for idx, ct in enumerate(ket_qua_chi_tiet, 1):
+        p.drawString(2 * cm, y_position, f"Câu {idx}: {ct['cau_hoi'].noi_dung}")
+        y_position -= 0.5 * cm
+        p.drawString(3 * cm, y_position, f"Đáp án chọn: {ct['cau_tra_loi']}")
+        y_position -= 0.5 * cm
+        p.drawString(3 * cm, y_position, f"Đáp án đúng: {ct['dap_an_dung']}")
+        y_position -= 0.5 * cm
+        p.drawString(3 * cm, y_position, f"Kết quả: {ct['ket_qua']}")
+        y_position -= 1 * cm
+
+        # Nếu hết trang, tạo trang mới
+        if y_position < 2 * cm:
+            p.showPage()
+            p.setFont('DejaVuSans', 12)
+            y_position = 28 * cm
+
+    # Kết thúc và lưu PDF
+    p.showPage()
+    p.save()
+
+    # Trả về file PDF
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="BaoCaoKetQua_{id_bai_lam}.pdf"'
+    return response

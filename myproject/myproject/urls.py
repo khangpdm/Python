@@ -30,7 +30,7 @@ urlpatterns = [
     path('de-thi/<int:de_thi_id>/', views.chi_tiet_de_thi, name='chi_tiet_de_thi'),
     path('de-thi/<int:id>/', views.xem_de_thi, name='xem_de_thi'),
     path('danh-sach-de-thi/', views.danh_sach_de_thi, name='danh_sach_de_thi'),
-    path('de-thi/<int:id>/', views.xem_de_thi, name='xem_de_thi'),  # Xem chi tiết đề thi
+    path('de-thi/<int:id>/', views.xem_de_thi, name='xem_de_thi'),  
     path('xoa-de-thi/<int:id>/', views.xoa_de_thi, name='xoa_de_thi'),
     path('xuat-pdf-de-thi/<int:id>/', views.xuat_pdf_de_thi, name='xuat_pdf_de_thi'),
     
@@ -42,4 +42,5 @@ urlpatterns = [
     path('xuat_pdf_de_thi/<int:de_thi_id>/', views.xuat_pdf_de_thi, name='xuat_pdf_de_thi'),
     path('xem_pdf_de_thi/<int:de_thi_id>/', views.xem_pdf_de_thi, name='xem_pdf_de_thi'),
     path('chi-tiet-bai-lam/<int:bai_lam_id>/', views.chi_tiet_bai_lam, name='chi_tiet_bai_lam'),
+    path('xuat-bao-cao/<int:bai_lam_id>/', views.xuat_bao_cao_ket_qua, name='xuat_bao_cao_ket_qua'),
 ]

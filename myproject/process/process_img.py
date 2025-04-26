@@ -94,27 +94,43 @@ def map_answer(idx):
     else:
         return "D"
 
+
+import os
+from collections import defaultdict
+import torch
+import numpy as np
+from model_test import SimpleCNN
+
 def get_answers(list_answers):
     results = defaultdict(list)
     model = SimpleCNN('model_weight.pth')
     
-    # Load model weights with weights_only=True for safety
-    model.load_state_dict(torch.load('D:/Python/Python-main/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
+    # Sử dụng đường dẫn tương đối
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_path = os.path.join(BASE_DIR, 'process', 'model_weight.pth')
+    
+    # Kiểm tra file có tồn tại không
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Không tìm thấy file mô hình tại: {model_path}. Vui lòng đặt file 'model_weight.pth' vào thư mục {os.path.dirname(model_path)}")
+    
+    # Tải mô hình với xử lý lỗi
+    try:
+        model.load_state_dict(torch.load(model_path, weights_only=True))
+    except Exception as e:
+        raise Exception(f"Lỗi khi tải mô hình: {str(e)}")
+    
     model.eval()  # Set model to evaluation mode
 
     list_answers = np.array(list_answers)
 
-    with torch.no_grad():  # Disable gradient computation
-        # Chuyển đổi và chuẩn hóa dữ liệu đầu vào
+    with torch.no_grad():
         scores = model(torch.tensor(list_answers, dtype=torch.float32).permute(0, 3, 1, 2) / 255.0)
 
     for idx, score in enumerate(scores):
         question = idx // 4
-
-        # Kiểm tra xem xác suất cho lựa chọn đã chọn có lớn hơn 0.9 không
         if score[1] > 0.9:
             chosed_answer = map_answer(idx)
-            results[question + 1].append(chosed_answer)  # Thêm câu trả lời vào kết quả
+            results[question + 1].append(chosed_answer)
 
     return results
 

@@ -39,8 +39,9 @@ class DeThiChiTiet(models.Model):
 
     class Meta:
         db_table = 'de_thi_chi_tiet'
-        managed = False  # Vì bảng đã có sẵn trong database
+        managed = False 
 
+        
 class KetQua(models.Model):
     id = models.AutoField(primary_key=True)
     id_bai_lam = models.IntegerField(null=True, blank=True)
@@ -71,3 +72,20 @@ class HocSinh(models.Model):
     class Meta:
         db_table = 'hoc_sinh'
         managed = False
+
+
+
+
+from django.db import models
+
+class BaiLam(models.Model):
+    id = models.AutoField(primary_key=True)
+    id_hoc_sinh = models.ForeignKey('HocSinh', on_delete=models.CASCADE, null=True)
+    id_de = models.ForeignKey('DeThi', on_delete=models.CASCADE, null=True)
+    ngay_nop = models.DateTimeField(auto_now_add=True)
+    trang_thai = models.CharField(max_length=20, choices=[('dang_cho_cham', 'Đang chờ chấm'), ('da_cham', 'Đã chấm')], default='dang_cho_cham')
+    hinh_anh_bai_lam = models.FileField(upload_to='exam_submissions/', null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'bai_lam'
