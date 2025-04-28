@@ -1,13 +1,9 @@
 import os
-import sys
-import random
-import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import IntegrityError
 from django.contrib import messages
 from .models import NganHangCauHoi, DeThi, DeThiChiTiet, GiaoVien, HocSinh
 from .forms import CauHoiForm
-from django.utils import timezone
 
 
 def home(request):
@@ -411,10 +407,15 @@ def xem_ket_qua(request):
     ket_qua_bai_lam = []
     for bl in BaiLam.objects.filter(id_hoc_sinh=hoc_sinh).select_related('id_de').order_by('-ngay_nop'):
         ket_qua = KetQua.objects.filter(id_bai_lam=bl).first()
-        so_cau_dung = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Đúng').count()
-        so_cau_sai = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Sai').count()
-        tong_cau = so_cau_dung + so_cau_sai
-        ty_le_dung = (so_cau_dung / tong_cau * 100) if tong_cau > 0 else 0
+        # Get question IDs for the exam
+        question_ids = DeThiChiTiet.objects.filter(de_thi=bl.id_de).values_list('cau_hoi_id', flat=True)
+        total_questions = len(question_ids)
+        # Count correct answers only for questions in the exam
+        so_cau_dung = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Đúng', id_cau_hoi__in=question_ids).count()
+        # Count wrong answers only for questions in the exam
+        so_cau_sai = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Sai', id_cau_hoi__in=question_ids).count()
+        so_cau_chua_tra_loi = total_questions - (so_cau_dung + so_cau_sai)
+        ty_le_dung = (so_cau_dung / total_questions * 100) if total_questions > 0 else 0
 
         ket_qua_bai_lam.append({
             'id': bl.id,
@@ -424,6 +425,7 @@ def xem_ket_qua(request):
             'diem': ket_qua.diem if ket_qua else None,
             'so_cau_dung': so_cau_dung,
             'so_cau_sai': so_cau_sai,
+            'so_cau_chua_tra_loi': so_cau_chua_tra_loi,
             'ty_le_dung': round(ty_le_dung, 2)
         })
 
