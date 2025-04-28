@@ -106,7 +106,7 @@ def get_answers(list_answers):
     model = SimpleCNN('model_weight.pth')
     
     # Load model weights with weights_only=True for safety
-    model.load_state_dict(torch.load('C:/xampp/htdocs/tracnghiem/Python/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
+    model.load_state_dict(torch.load('D:/Python/MAIN/newest-test/Python/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
     model.eval()  # Set model to evaluation mode
 
     list_answers = np.array(list_answers)
@@ -137,12 +137,13 @@ def save_answers_to_db(answers, id_bai_lam):
     # Delete existing ChiTietBaiLam entries for this bai_lam to avoid duplicates
     ChiTietBaiLam.objects.filter(id_bai_lam=bai_lam).delete()
 
-    # Get all question IDs for the exam
-    question_ids = DeThiChiTiet.objects.filter(de_thi=bai_lam.id_de).values_list('cau_hoi_id', flat=True)
+    # Get all question IDs for the exam ordered by question order
+    question_ids = list(DeThiChiTiet.objects.filter(de_thi=bai_lam.id_de).order_by('thu_tu').values_list('cau_hoi_id', flat=True))
 
-    for question_id in question_ids:
-        if question_id in answers:
-            answer_list = answers[question_id]
+    # Iterate over question order and map to question IDs
+    for idx, question_id in enumerate(question_ids, start=1):
+        if idx in answers:
+            answer_list = answers[idx]
             if len(answer_list) > 1:
                 combined_answer = ', '.join(answer_list)
                 ket_qua = 'Sai'
@@ -205,4 +206,4 @@ def grade_exam(image_path, id_bai_lam):
     save_total_score_to_db(id_bai_lam, total_score)
 
 if __name__ == '__main__':
-    grade_exam('D:/Python/Python-main/myproject/process/1.jpg', 3)
+    grade_exam('D:/Python/MAIN/newest-test/Python/myproject/myproject/process/mau5.jpg', 3)
