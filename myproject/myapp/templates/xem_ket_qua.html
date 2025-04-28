@@ -1,51 +1,73 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-<h2>Chi tiết bài làm #{{ bai_lam.id }}</h2>
-<p><strong>Đề thi:</strong> {{ bai_lam.de_thi.ten_de }}</p>
-<p><strong>Học sinh:</strong> {{ bai_lam.hoc_sinh.ho_ten|default:bai_lam.hoc_sinh.ten_dang_nhap }}</p>
-<p><strong>Ngày nộp:</strong> {{ bai_lam.ngay_nop|date:"d/m/Y H:i" }}</p>
-<p><strong>Trạng thái:</strong> {{ bai_lam.trang_thai|default:"Đang chờ chấm" }}</p>
-<p><strong>Điểm:</strong> {{ bai_lam.diem|default:"Chưa chấm" }}</p>
-
-<h3>Hình ảnh bài thi</h3>
-{% if bai_lam.hinh_anh %}
-    <img src="/media/{{ bai_lam.hinh_anh }}" alt="Hình ảnh bài thi" style="max-width: 100%;">
-{% else %}
-    <p>Không có hình ảnh bài thi.</p>
-{% endif %}
-
-<h3>Đáp án nhận diện</h3>
-<table border="1" cellpadding="5" cellspacing="0">
-    <tr>
-        <th>Câu hỏi</th>
-        <th>Đáp án chọn</th>
-        <th>Đáp án đúng</th>
-        <th>Kết quả</th>
-    </tr>
-    {% for ct in chi_tiet %}
-    <tr>
-        <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
-        <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
-        <td>
-            {% if bai_lam.trang_thai == "da_cham" %}
-                {{ ct.dap_an_dung }}
-            {% else %}
-                &mdash;
-            {% endif %}
-        </td>
-        <td>
-            {% if bai_lam.trang_thai == "da_cham" %}
-                {{ ct.ket_qua|default:"Chưa chấm" }}
-            {% else %}
-                &mdash;
-            {% endif %}
-        </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="4">Không có dữ liệu.</td></tr>
-    {% endfor %}
+<h2>Danh sách bài làm của bạn</h2>
+{% if ket_qua_bai_lam %}
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID Bài làm</th>
+            <th>Tên đề thi</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+            <th>Điểm</th>
+            <th>Số câu đúng</th>
+            <th>Số câu sai</th>
+            <th>Số câu chưa trả lời</th>
+            <th>Tỷ lệ đúng (%)</th>
+            <th>Chi tiết bài làm</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bl in ket_qua_bai_lam %}
+        <tr>
+            <td>{{ bl.id }}</td>
+            <td>{{ bl.ten_de }}</td>
+            <td>{{ bl.ngay_nop|date:"d/m/Y H:i" }}</td>
+            <td>{{ bl.trang_thai }}</td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.diem|default:"Chưa chấm" }}
+                {% else %}
+&mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_dung }}
+                {% else %}
+&mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_sai }}
+                {% else %}
+&mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_chua_tra_loi }}
+                {% else %}
+&mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.ty_le_dung }}
+                {% else %}
+&mdash;
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm">Xem chi tiết</a>
+                <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-
-<a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success">Xuất báo cáo PDF</a>
-<a href="{% url 'xem_ket_qua' %}">← Quay lại</a>
+<a href="{% url 'home' %}">← Quay lại trang chủ</a>
+{% else %}
+<p>Bạn chưa có bài làm nào.</p>
+{% endif %}
