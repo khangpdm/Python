@@ -18,6 +18,7 @@
 <h3>Đáp án nhận diện</h3>
 <table border="1" cellpadding="5" cellspacing="0">
     <tr>
+        <th>STT</th>
         <th>Câu hỏi</th>
         <th>Đáp án chọn</th>
         <th>Đáp án đúng</th>
@@ -25,13 +26,14 @@
     </tr>
     {% for ct in chi_tiet %}
     <tr>
+        <td>{{ forloop.counter }}</td> 
         <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
         <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
         <td>{{ ct.dap_an_dung }}</td>
         <td>{{ ct.ket_qua|default:"Chưa chấm" }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="4">Không có dữ liệu.</td></tr>
+    <tr><td colspan="5">Không có dữ liệu.</td></tr>
     {% endfor %}
 </table>
 

@@ -106,7 +106,7 @@ def get_answers(list_answers):
     model = SimpleCNN('model_weight.pth')
     
     # Load model weights with weights_only=True for safety
-    model.load_state_dict(torch.load('D:/Python/Python-main/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
+    model.load_state_dict(torch.load('C:/xampp/htdocs/tracnghiem/Python/myproject/process/model_weight.pth', weights_only=True)) #Sửa lại đường dẫn
     model.eval()  # Set model to evaluation mode
 
     list_answers = np.array(list_answers)
