@@ -27,8 +27,20 @@
     <tr>
         <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
         <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
-        <td>{{ ct.dap_an_dung }}</td>
-        <td>{{ ct.ket_qua|default:"Chưa chấm" }}</td>
+        <td>
+            {% if bai_lam.trang_thai == "da_cham" %}
+                {{ ct.dap_an_dung }}
+            {% else %}
+                &mdash;
+            {% endif %}
+        </td>
+        <td>
+            {% if bai_lam.trang_thai == "da_cham" %}
+                {{ ct.ket_qua|default:"Chưa chấm" }}
+            {% else %}
+                &mdash;
+            {% endif %}
+        </td>
     </tr>
     {% empty %}
     <tr><td colspan="4">Không có dữ liệu.</td></tr>
