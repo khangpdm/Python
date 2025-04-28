@@ -13,6 +13,7 @@
             <th>Điểm</th>
             <th>Số câu đúng</th>
             <th>Số câu sai</th>
+            <th>Số câu chưa trả lời</th>
             <th>Tỷ lệ đúng (%)</th>
             <th>Chi tiết bài làm</th>
         </tr>
@@ -24,10 +25,41 @@
             <td>{{ bl.ten_de }}</td>
             <td>{{ bl.ngay_nop|date:"d/m/Y H:i" }}</td>
             <td>{{ bl.trang_thai }}</td>
-            <td>{{ bl.diem|default:"Chưa chấm" }}</td>
-            <td>{{ bl.so_cau_dung }}</td>
-            <td>{{ bl.so_cau_sai }}</td>
-            <td>{{ bl.ty_le_dung }}</td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.diem|default:"Chưa chấm" }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_dung }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_sai }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.so_cau_chua_tra_loi }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
+            <td>
+                {% if bl.trang_thai == "da_cham" %}
+                    {{ bl.ty_le_dung }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
             <td>
                 <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm">Xem chi tiết</a>
                 <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
