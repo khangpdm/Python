@@ -162,10 +162,7 @@ CREATE TABLE `bai_lam` (
 -- Dumping data for table `bai_lam`
 --
 
-INSERT INTO `bai_lam` (`id`, `id_hoc_sinh`, `id_de`, `ngay_nop`, `trang_thai`, `hinh_anh_bai_lam`) VALUES
-(22, 3, 1, '2025-04-26 01:12:02', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1_QIxmZyc.jpg'),
-(23, 3, 4, '2025-04-26 03:12:50', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1.jpg'),
-(24, 3, 7, '2025-04-26 04:00:54', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1_mMoN7nt.jpg');
+
 
 -- --------------------------------------------------------
 
@@ -1150,6 +1147,11 @@ INSERT INTO `ngan_hang_cau_hoi` (`id`, `noi_dung`, `dap_an_A`, `dap_an_B`, `dap_
 -- Indexes for dumped tables
 --
 
+INSERT INTO `bai_lam` (`id`, `id_hoc_sinh`, `id_de`, `ngay_nop`, `trang_thai`, `hinh_anh_bai_lam`) VALUES
+(22, 3, 1, '2025-04-26 01:12:02', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1_QIxmZyc.jpg'),
+(23, 3, 4, '2025-04-26 03:12:50', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1.jpg'),
+(24, 3, 7, '2025-04-26 04:00:54', 'dang_cho_cham', 'D:\\Python\\MAIN\\Python-main\\myproject\\media\\exam_submissions\\1_mMoN7nt.jpg');
+
 --
 -- Indexes for table `auth_group`
 --
@@ -1481,7 +1483,6 @@ ALTER TABLE `ket_qua`
   ADD CONSTRAINT `ket_qua_ibfk_1` FOREIGN KEY (`id_bai_lam`) REFERENCES `bai_lam` (`id`) ON DELETE CASCADE;
 COMMIT;
 
-ALTER TABLE bai_lam ADD COLUMN hinh_anh_bai_lam VARCHAR(255) DEFAULT NULL;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

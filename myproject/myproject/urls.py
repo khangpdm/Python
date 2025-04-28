@@ -43,4 +43,5 @@ urlpatterns = [
     path('xem_pdf_de_thi/<int:de_thi_id>/', views.xem_pdf_de_thi, name='xem_pdf_de_thi'),
     path('chi-tiet-bai-lam/<int:bai_lam_id>/', views.chi_tiet_bai_lam, name='chi_tiet_bai_lam'),
     path('xuat-bao-cao/<int:bai_lam_id>/', views.xuat_bao_cao_ket_qua, name='xuat_bao_cao_ket_qua'),
+
 ]

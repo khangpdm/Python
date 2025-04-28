@@ -1,12 +1,22 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
 <h2>Chi tiết bài làm #{{ bai_lam.id }}</h2>
 <p><strong>Đề thi:</strong> {{ bai_lam.de_thi.ten_de }}</p>
+<p><strong>Học sinh:</strong> {{ bai_lam.hoc_sinh.ho_ten|default:bai_lam.hoc_sinh.ten_dang_nhap }}</p>
+<p><strong>Ngày nộp:</strong> {{ bai_lam.ngay_nop|date:"d/m/Y H:i" }}</p>
+<p><strong>Trạng thái:</strong> {{ bai_lam.trang_thai|default:"Đang chờ chấm" }}</p>
 <p><strong>Điểm:</strong> {{ bai_lam.diem|default:"Chưa chấm" }}</p>
 
 <h3>Hình ảnh bài thi</h3>
-<img src="/media/{{ bai_lam.hinh_anh_bai_lam }}" alt="Hình ảnh bài thi" style="max-width: 100%;">
+{% if bai_lam.hinh_anh %}
+    <img src="/media/{{ bai_lam.hinh_anh }}" alt="Hình ảnh bài thi" style="max-width: 100%;">
+{% else %}
+    <p>Không có hình ảnh bài thi.</p>
+{% endif %}
 
 <h3>Đáp án nhận diện</h3>
-<table border="1">
+<table border="1" cellpadding="5" cellspacing="0">
     <tr>
         <th>Câu hỏi</th>
         <th>Đáp án chọn</th>
@@ -15,10 +25,10 @@
     </tr>
     {% for ct in chi_tiet %}
     <tr>
-        <td>{{ ct.cau_hoi.noi_dung }}</td>
-        <td>{{ ct.cau_tra_loi }}</td>
+        <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
+        <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
         <td>{{ ct.dap_an_dung }}</td>
-        <td>{{ ct.ket_qua }}</td>
+        <td>{{ ct.ket_qua|default:"Chưa chấm" }}</td>
     </tr>
     {% empty %}
     <tr><td colspan="4">Không có dữ liệu.</td></tr>

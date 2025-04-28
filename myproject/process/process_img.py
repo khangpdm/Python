@@ -79,10 +79,11 @@ def process_list_ans(list_answers):
             bubble_choice = bubble_choice.reshape((28, 28, 1))
             list_choices.append(bubble_choice)
 
-    if len(list_choices) != 480:
-        raise ValueError("Length of list_choices must be 480")
-    
+    if len(list_choices) != 200:  # 50 câu hỏi x 4 lựa chọn = 200
+        raise ValueError(f"Length of list_choices must be 200, but got {len(list_choices)}")
+
     return list_choices
+
 
 def map_answer(idx):
     if idx % 4 == 0:
@@ -164,39 +165,42 @@ def get_correct_answer(question_id):
             connection.close()
 
 def save_answers_to_db(answers, id_bai_lam):
-    # Kết nối đến cơ sở dữ liệu
     try:
         connection = mysql.connector.connect(
-            host='localhost',  
-            user='root',  
-            password='',  
-            database='tnonlinefix' 
+            host='localhost',
+            user='root',
+            password='',
+            database='tnonlinefix'
         )
         cursor = connection.cursor()
-        
-        for question, answer_list in answers.items():
-            # Kiểm tra xem có bao nhiêu đáp án
+
+        # Lấy id_de từ bai_lam
+        cursor.execute("SELECT id_de FROM bai_lam WHERE id = %s", (id_bai_lam,))
+        id_de = cursor.fetchone()[0]
+
+        # Lấy danh sách câu hỏi của đề thi
+        cursor.execute("SELECT cau_hoi_id, thu_tu FROM de_thi_chi_tiet WHERE de_thi_id = %s ORDER BY thu_tu", (id_de,))
+        cau_hoi_list = cursor.fetchall()
+
+        for thu_tu, answer_list in answers.items():
+            if thu_tu > len(cau_hoi_list):
+                continue  # Bỏ qua nếu số thứ tự vượt quá số câu hỏi
+            cau_hoi_id = cau_hoi_list[thu_tu - 1][0]
+            correct_answer = get_correct_answer(cau_hoi_id)
             if len(answer_list) > 1:
-                # Nếu có nhiều hơn một đáp án, lưu vào cùng một hàng và đánh dấu là "Sai"
                 combined_answer = ', '.join(answer_list)
-                correct_answer = get_correct_answer(question)  # Lấy câu trả lời đúng
-                ket_qua = 'Sai'  # Đánh dấu là sai vì có nhiều đáp án
+                ket_qua = 'Sai'
             else:
-                # Nếu chỉ có một đáp án
-                answer = answer_list[0]
-                correct_answer = get_correct_answer(question)  # Lấy câu trả lời đúng
-                ket_qua = 'Đúng' if answer == correct_answer else 'Sai'
-                combined_answer = answer  # Chỉ có một đáp án
+                combined_answer = answer_list[0] if answer_list else None
+                ket_qua = 'Đúng' if combined_answer == correct_answer else 'Sai'
 
-            # Insert câu trả lời vào bảng chi_tiet_bai_lam
-            sql = "INSERT INTO chi_tiet_bai_lam (id_bai_lam, id_cau_hoi, cau_tra_loi, ket_qua) VALUES (%s, %s, %s, %s)"
-            
-            values = (id_bai_lam, question, combined_answer, ket_qua)  # id_bai_lam, question, combined_answer, ket_qua
-            cursor.execute(sql, values)
+            if combined_answer:
+                cursor.execute(
+                    "INSERT INTO chi_tiet_bai_lam (id_bai_lam, id_cau_hoi, cau_tra_loi, ket_qua) VALUES (%s, %s, %s, %s)",
+                    (id_bai_lam, cau_hoi_id, combined_answer, ket_qua)
+                )
 
-        connection.commit()  # Xác nhận giao dịch
-        print("Câu trả lời đã được lưu vào cơ sở dữ liệu.")
-
+        connection.commit()
     except mysql.connector.Error as err:
         print(f"Lỗi: {err}")
     finally:
@@ -204,18 +208,51 @@ def save_answers_to_db(answers, id_bai_lam):
             cursor.close()
             connection.close()
 
-def calculate_total_score(answers):
-    # Tính tổng số câu đúng và quy đổi điểm tối đa 10 cho 120 câu
-    total_correct = 0
-    total_questions = 120  # Tổng số câu hỏi tối đa
-    for question, answer_list in answers.items():
-        if len(answer_list) == 1:
-            answer = answer_list[0]
-            correct_answer = get_correct_answer(question)
-            if answer == correct_answer:
-                total_correct += 1
-    scaled_score = (total_correct / total_questions) * 10
-    return round(scaled_score, 2)
+def calculate_total_score(answers, id_bai_lam):
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='tnonlinefix'
+        )
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT id_de FROM bai_lam WHERE id = %s", (id_bai_lam,))
+        id_de = cursor.fetchone()
+        if not id_de:
+            raise ValueError("Không tìm thấy bài làm với ID này.")
+        id_de = id_de[0]
+
+        cursor.execute("SELECT COUNT(*) FROM de_thi_chi_tiet WHERE de_thi_id = %s", (id_de,))
+        total_questions = cursor.fetchone()[0]
+
+        total_correct = 0
+        for thu_tu, answer_list in answers.items():
+            if thu_tu > total_questions:
+                continue
+            cau_hoi_id = cursor.execute(
+                "SELECT cau_hoi_id FROM de_thi_chi_tiet WHERE de_thi_id = %s AND thu_tu = %s",
+                (id_de, thu_tu)
+            ).fetchone()
+            if cau_hoi_id and len(answer_list) == 1:
+                answer = answer_list[0]
+                correct_answer = get_correct_answer(cau_hoi_id[0])
+                if answer == correct_answer:
+                    total_correct += 1
+
+        scaled_score = (total_correct / total_questions * 10) if total_questions > 0 else 0
+        scaled_score = round(scaled_score, 2)
+        return scaled_score, total_questions, total_correct
+    except mysql.connector.Error as err:
+        print(f"Lỗi: {err}")
+        return 0, 0, 0
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
 
 def save_total_score_to_db(id_bai_lam, total_score):
     try:
@@ -226,12 +263,15 @@ def save_total_score_to_db(id_bai_lam, total_score):
             database='tnonlinefix'
         )
         cursor = connection.cursor()
-        # Giả sử bảng ket_qua có các trường id_bai_lam và diem
-        sql = "INSERT INTO ket_qua (id_bai_lam, diem) VALUES (%s, %s) ON DUPLICATE KEY UPDATE diem = %s"
-        values = (id_bai_lam, total_score, total_score)
-        cursor.execute(sql, values)
+        cursor.execute(
+            "INSERT INTO ket_qua (id_bai_lam, diem) VALUES (%s, %s) ON DUPLICATE KEY UPDATE diem = %s",
+            (id_bai_lam, total_score, total_score)
+        )
+        cursor.execute(
+            "UPDATE bai_lam SET trang_thai = 'da_cham' WHERE id = %s",
+            (id_bai_lam,)
+        )
         connection.commit()
-        print("Điểm tổng đã được lưu vào cơ sở dữ liệu.")
     except mysql.connector.Error as err:
         print(f"Lỗi khi lưu điểm tổng: {err}")
     finally:
@@ -239,32 +279,31 @@ def save_total_score_to_db(id_bai_lam, total_score):
             cursor.close()
             connection.close()
 
+import logging
+logger = logging.getLogger(__name__)
+
 def grade_exam(image_path, id_bai_lam):
-    import cv2
-    # Tải ảnh từ đường dẫn cụ thể
+    logger.info(f"Bắt đầu chấm bài thi: {image_path}, ID: {id_bai_lam}")
     img = cv2.imread(image_path)
+    if img is None:
+        logger.error(f"Không thể đọc hình ảnh từ: {image_path}")
+        raise ValueError(f"Không thể đọc hình ảnh từ: {image_path}")
     
-    # Trích xuất các khối đáp án
     list_ans_boxes = crop_image(img)
+    logger.info(f"Tìm thấy {len(list_ans_boxes)} khối đáp án")
     
-    # Xử lý các khối đáp án thành danh sách ảnh
     list_ans = process_ans_blocks(list_ans_boxes)
+    logger.info(f"Xử lý {len(list_ans)} đáp án")
     
-    # Xử lý danh sách ảnh thành danh sách lựa chọn
     list_answers = process_list_ans(list_ans)
+    logger.info(f"Chuẩn bị {len(list_answers)} lựa chọn cho mô hình")
     
-    # Nhận các câu trả lời từ danh sách lựa chọn
     answers = get_answers(list_answers)
-
-    # In ra kết quả câu trả lời
-    for question, answer in answers.items():
-        print(f"Câu hỏi {question}: {', '.join(answer)}")
-
-    # Lưu câu trả lời vào cơ sở dữ liệu
+    logger.info(f"Kết quả nhận diện: {answers}")
+    
     save_answers_to_db(answers, id_bai_lam)
-    total_score = calculate_total_score(answers)
+    total_score, total_questions, total_correct = calculate_total_score(answers, id_bai_lam)
     save_total_score_to_db(id_bai_lam, total_score)
-
-if __name__ == '__main__':
-    # Example usage
-    grade_exam('D:/Python/Python-main/myproject/process/1.jpg', 3)
+    
+    logger.info(f"Tổng số câu hỏi: {total_questions}, Số câu đúng: {total_correct}, Điểm: {total_score}")
+    return total_score

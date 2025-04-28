@@ -25,11 +25,11 @@ class DeThi(models.Model):
     ten_de = models.CharField(max_length=255)
     ma_de = models.CharField(max_length=20)
     ngay_tao = models.DateTimeField(auto_now_add=True)
-    id_giao_vien = models.ForeignKey('GiaoVien', db_column='id_giao_vien', on_delete=models.DO_NOTHING)
+    id_giao_vien = models.ForeignKey('GiaoVien', db_column='id_giao_vien', on_delete=models.CASCADE)  
 
     class Meta:
-        db_table = 'de_thi'  # chỉ định đúng tên bảng có sẵn trong DB
-        managed = False  # vì bảng đã tồn tại, không cho Django tạo/migrate
+        db_table = 'de_thi'
+        managed = False
 
 
 class DeThiChiTiet(models.Model):
@@ -39,18 +39,17 @@ class DeThiChiTiet(models.Model):
 
     class Meta:
         db_table = 'de_thi_chi_tiet'
-        managed = False 
+        managed = False
 
         
 class KetQua(models.Model):
     id = models.AutoField(primary_key=True)
-    id_bai_lam = models.IntegerField(null=True, blank=True)
+    id_bai_lam = models.ForeignKey('BaiLam', on_delete=models.CASCADE, null=True, db_column='id_bai_lam')
     diem = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = 'ket_qua'
         managed = False
-
 
 # models.py
 from django.db import models
@@ -80,8 +79,8 @@ from django.db import models
 
 class BaiLam(models.Model):
     id = models.AutoField(primary_key=True)
-    id_hoc_sinh = models.ForeignKey('HocSinh', on_delete=models.CASCADE, null=True)
-    id_de = models.ForeignKey('DeThi', on_delete=models.CASCADE, null=True)
+    id_hoc_sinh = models.ForeignKey('HocSinh', on_delete=models.CASCADE, null=True, db_column='id_hoc_sinh')
+    id_de = models.ForeignKey('DeThi', on_delete=models.CASCADE, null=True, db_column='id_de')
     ngay_nop = models.DateTimeField(auto_now_add=True)
     trang_thai = models.CharField(max_length=20, choices=[('dang_cho_cham', 'Đang chờ chấm'), ('da_cham', 'Đã chấm')], default='dang_cho_cham')
     hinh_anh_bai_lam = models.FileField(upload_to='exam_submissions/', null=True, blank=True)
@@ -89,3 +88,14 @@ class BaiLam(models.Model):
     class Meta:
         managed = False
         db_table = 'bai_lam'
+
+class ChiTietBaiLam(models.Model):
+    id = models.AutoField(primary_key=True)
+    id_bai_lam = models.ForeignKey('BaiLam', on_delete=models.CASCADE, null=True, db_column='id_bai_lam')
+    id_cau_hoi = models.ForeignKey('NganHangCauHoi', on_delete=models.CASCADE, null=True, db_column='id_cau_hoi')
+    cau_tra_loi = models.CharField(max_length=255, null=True, blank=True)
+    ket_qua = models.CharField(max_length=10, choices=[('Đúng', 'Đúng'), ('Sai', 'Sai')], null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'chi_tiet_bai_lam'

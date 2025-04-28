@@ -256,86 +256,93 @@ def home_view(request):
     return render(request, 'index.html', context)
 
 
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
+
+
 import os
-from django.conf import settings
-
-def upload_exam(request):
-    if request.method == 'POST' and request.user.is_authenticated:
-        if 'exam_file' in request.FILES:
-            exam_file = request.FILES['exam_file']
-            file_path = os.path.join(settings.MEDIA_ROOT, 'exam_submissions', exam_file.name)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, 'wb+') as destination:
-                for chunk in exam_file.chunks():
-                    destination.write(chunk)
-            messages.success(request, f'Đã nộp bài thi: {exam_file.name}')
-        else:
-            messages.error(request, 'Vui lòng chọn file để nộp.')
-        return redirect('home')
-    return redirect('login')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+import sys
+import importlib.util
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-import os
-from django.conf import settings
-
-
-from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
 from django.db import connection
-from myapp.models import HocSinh, DeThi
-import datetime
+from .models import HocSinh, DeThi, NganHangCauHoi, BaiLam, ChiTietBaiLam, KetQua, GiaoVien, DeThiChiTiet
+from .forms import CauHoiForm
 
+import logging
+logger = logging.getLogger(__name__)
 
 def upload_exam(request):
-    import os
-    import importlib.util
-    from django.conf import settings
-    from django.db import connection
-    from myapp.models import HocSinh, DeThi
-    import datetime
-    from django.contrib import messages
-    from django.shortcuts import redirect, render
-
+    logger.info("Bắt đầu xử lý upload_exam")
+    username = request.session.get('username')
+    if not username:
+        logger.error("Không có username trong session")
+        messages.error(request, 'Bạn cần đăng nhập để nộp bài.')
+        return redirect('login')
+    
+    try:
+        hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
+        logger.info(f"Tìm thấy học sinh: {username}")
+    except HocSinh.DoesNotExist:
+        logger.error(f"Không tìm thấy học sinh: {username}")
+        messages.error(request, 'Không tìm thấy học sinh.')
+        return redirect('login')
+    
+    role = request.session.get('role')
+    if role != 'student':
+        logger.error(f"Vai trò không hợp lệ: {role}")
+        messages.error(request, 'Chỉ học sinh mới có thể nộp bài.')
+        return redirect('home')
+    
     if request.method == 'POST':
-        username = request.session.get('username')
-        if not username:
-            messages.error(request, 'Bạn cần đăng nhập để nộp bài thi.')
-            return redirect('login')
-
-        try:
-            hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
-        except HocSinh.DoesNotExist:
-            messages.error(request, 'Không tìm thấy học sinh.')
-            return redirect('login')
-
-        selected_exam_id = request.POST.get('selected_exam')
-        try:
-            de_thi = DeThi.objects.get(id=selected_exam_id)
-        except (DeThi.DoesNotExist, ValueError, TypeError):
-            messages.error(request, 'Đề thi không hợp lệ.')
+        de_thi_id = request.POST.get('selected_exam')
+        logger.info(f"Đề thi ID: {de_thi_id}")
+        if not de_thi_id:
+            logger.error("Không có đề thi được chọn")
+            messages.error(request, 'Vui lòng chọn đề thi.')
             return redirect('home')
-
-        if 'exam_file' in request.FILES:
-            exam_file = request.FILES['exam_file']
-            from django.core.files.storage import FileSystemStorage
-            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'exam_submissions'))
-            filename = fs.save(exam_file.name, exam_file)
-            file_path = fs.path(filename)
-
-            # Lưu bài làm vào cơ sở dữ liệu trước
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "INSERT INTO bai_lam (id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam) VALUES (%s, %s, %s, %s, %s)",
-                    [hoc_sinh.id, de_thi.id, datetime.datetime.now(), 'dang_cho_cham', file_path]
-                )
-                bai_lam_id = cursor.lastrowid
-
-            # Xử lý hình ảnh bài thi với xử lý lỗi
-            try:
+        
+        try:
+            de_thi = DeThi.objects.get(id=de_thi_id)
+            logger.info(f"Tìm thấy đề thi: {de_thi.ten_de}")
+        except DeThi.DoesNotExist:
+            logger.error(f"Đề thi không tồn tại: {de_thi_id}")
+            messages.error(request, 'Đề thi không tồn tại.')
+            return redirect('home')
+        
+        if BaiLam.objects.filter(id_hoc_sinh=hoc_sinh, id_de=de_thi).exists():
+            logger.error(f"Bài làm đã tồn tại cho học sinh {username} và đề thi {de_thi_id}")
+            messages.error(request, 'Bạn đã nộp bài cho đề thi này.')
+            return redirect('home')
+        
+        exam_file = request.FILES.get('exam_file')
+        answers = request.POST.get('answers')
+        if not exam_file and not answers:
+            logger.error("Không có file bài làm hoặc đáp án")
+            messages.error(request, 'Vui lòng chọn file bài làm hoặc nhập đáp án trắc nghiệm.')
+            return redirect('home')
+        
+        fs = FileSystemStorage()
+        filename = None
+        if exam_file:
+            if not exam_file.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                logger.error(f"Định dạng file không hợp lệ: {exam_file.name}")
+                messages.error(request, 'Vui lòng tải lên file ảnh PNG hoặc JPG.')
+                return redirect('home')
+            filename = fs.save(f'exam_submissions/{username}_{exam_file.name}', exam_file)
+            logger.info(f"Lưu file bài làm: {filename}")
+        
+        bai_lam = BaiLam.objects.create(
+            id_hoc_sinh=hoc_sinh,
+            id_de=de_thi,
+            trang_thai='dang_cho_cham',
+            hinh_anh_bai_lam=filename
+        )
+        bai_lam_id = bai_lam.id
+        logger.info(f"Tạo bài làm mới: ID {bai_lam_id}")
+        
+        try:
+            if exam_file:
                 process_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'process')
                 if process_dir not in sys.path:
                     sys.path.insert(0, process_dir)
@@ -343,22 +350,51 @@ def upload_exam(request):
                 spec = importlib.util.spec_from_file_location("process_img", process_img_path)
                 process_img = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(process_img)
-                
-                image_path = file_path
+                image_path = fs.path(filename)
+                logger.info(f"Chấm bài thi tại: {image_path}")
                 process_img.grade_exam(image_path, bai_lam_id)
-                messages.success(request, f'Đã nộp và xử lý bài thi: {exam_file.name} (bài làm id: {bai_lam_id})')
-            except FileNotFoundError as e:
-                messages.error(request, f"Lỗi: Không tìm thấy file mô hình tại {str(e)}")
-            except Exception as e:
-                messages.error(request, f"Lỗi xử lý bài thi: {str(e)}")
-
-            return redirect('xem_ket_qua')  # Chuyển hướng dù có lỗi hay không
-        else:
-            messages.error(request, 'Vui lòng chọn file để nộp.')
+            
+            elif answers:
+                import json
+                answers_dict = json.loads(answers)
+                logger.info(f"Xử lý đáp án trắc nghiệm: {answers_dict}")
+                total_correct = 0
+                total_questions = DeThiChiTiet.objects.filter(de_thi=de_thi).count()
+                for cau_hoi_id, cau_tra_loi in answers_dict.items():
+                    cau_hoi = NganHangCauHoi.objects.get(id=cau_hoi_id)
+                    ket_qua = 'Đúng' if cau_tra_loi == cau_hoi.dap_an_dung else 'Sai'
+                    if ket_qua == 'Đúng':
+                        total_correct += 1
+                    ChiTietBaiLam.objects.create(
+                        id_bai_lam=bai_lam,
+                        id_cau_hoi=cau_hoi,
+                        cau_tra_loi=cau_tra_loi,
+                        ket_qua=ket_qua
+                    )
+                diem = (total_correct / total_questions * 10) if total_questions > 0 else 0
+                diem = round(diem, 2)
+                KetQua.objects.create(id_bai_lam=bai_lam, diem=diem)
+                bai_lam.trang_thai = 'da_cham'
+                bai_lam.save()
+                logger.info(f"Chấm điểm trắc nghiệm: {diem}")
+            
+            ket_qua = KetQua.objects.filter(id_bai_lam=bai_lam_id).first()
+            diem = ket_qua.diem if ket_qua else 0
+            logger.info(f"Kết quả bài làm: ID {bai_lam_id}, Điểm {diem}")
+            messages.success(request, f'Đã nộp và chấm điểm bài thi (ID: {bai_lam_id}, Điểm: {diem})')
+            return redirect('xem_ket_qua')
+        
+        except FileNotFoundError as e:
+            logger.error(f"FileNotFoundError: {str(e)}")
+            messages.error(request, f"Lỗi: Không tìm thấy file mô hình tại {str(e)}")
             return redirect('home')
-    else:
-        exams = DeThi.objects.all()
-        return render(request, 'index.html', {'exams': exams})
+        except Exception as e:
+            logger.error(f"Lỗi xử lý bài thi: {str(e)}")
+            messages.error(request, f"Lỗi xử lý bài thi: {str(e)}")
+            return redirect('home')
+    
+    exams = DeThi.objects.all()
+    return render(request, 'index.html', {'exams': exams, 'role': role, 'username': username})
     
 def xem_ket_qua(request):
     username = request.session.get('username')
@@ -372,26 +408,24 @@ def xem_ket_qua(request):
         messages.error(request, 'Không tìm thấy học sinh.')
         return redirect('login')
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT bl.id, dt.ten_de, bl.ngay_nop, bl.trang_thai, kq.diem "
-            "FROM bai_lam bl "
-            "JOIN de_thi dt ON bl.id_de = dt.id "
-            "LEFT JOIN ket_qua kq ON bl.id = kq.id_bai_lam "
-            "WHERE bl.id_hoc_sinh = %s "
-            "ORDER BY bl.ngay_nop DESC",
-            [hoc_sinh.id]
-        )
-        ket_qua_bai_lam_raw = cursor.fetchall()
-
-    # Lọc điểm chỉ khi trạng thái là 'da_cham', ngược lại điểm là None hoặc 0
     ket_qua_bai_lam = []
-    for bl in ket_qua_bai_lam_raw:
-        id_bai_lam, ten_de, ngay_nop, trang_thai, diem = bl
-        if trang_thai == 'da_cham':
-            ket_qua_bai_lam.append(bl)
-        else:
-            ket_qua_bai_lam.append((id_bai_lam, ten_de, ngay_nop, trang_thai, None))
+    for bl in BaiLam.objects.filter(id_hoc_sinh=hoc_sinh).select_related('id_de').order_by('-ngay_nop'):
+        ket_qua = KetQua.objects.filter(id_bai_lam=bl).first()
+        so_cau_dung = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Đúng').count()
+        so_cau_sai = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Sai').count()
+        tong_cau = so_cau_dung + so_cau_sai
+        ty_le_dung = (so_cau_dung / tong_cau * 100) if tong_cau > 0 else 0
+
+        ket_qua_bai_lam.append({
+            'id': bl.id,
+            'ten_de': bl.id_de.ten_de,
+            'ngay_nop': bl.ngay_nop,
+            'trang_thai': bl.trang_thai,
+            'diem': ket_qua.diem if ket_qua else None,
+            'so_cau_dung': so_cau_dung,
+            'so_cau_sai': so_cau_sai,
+            'ty_le_dung': round(ty_le_dung, 2)
+        })
 
     return render(request, 'xem_ket_qua.html', {'ket_qua_bai_lam': ket_qua_bai_lam})
 
@@ -523,11 +557,6 @@ def xem_pdf_de_thi(request, de_thi_id):
 
 
 
-from django.db import connection
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import HocSinh, DeThi, NganHangCauHoi, KetQua, GiaoVien
-
 def chi_tiet_bai_lam(request, bai_lam_id):
     username = request.session.get('username')
     role = request.session.get('role')
@@ -535,49 +564,40 @@ def chi_tiet_bai_lam(request, bai_lam_id):
         messages.error(request, 'Bạn cần đăng nhập để xem chi tiết bài làm.')
         return redirect('login')
 
+    bai_lam = get_object_or_404(BaiLam, id=bai_lam_id)
     if role == 'student':
         hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam FROM bai_lam WHERE id = %s AND id_hoc_sinh = %s", [bai_lam_id, hoc_sinh.id])
-            bai_lam = cursor.fetchone()
-            if not bai_lam:
-                messages.error(request, 'Bài làm không tồn tại hoặc không thuộc về bạn.')
-                return redirect('xem_ket_qua')
+        if bai_lam.id_hoc_sinh != hoc_sinh:
+            messages.error(request, 'Bài làm không thuộc về bạn.')
+            return redirect('xem_ket_qua')
     else:
         GiaoVien.objects.get(ten_dang_nhap=username)
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT id, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam FROM bai_lam WHERE id = %s", [bai_lam_id])
-            bai_lam = cursor.fetchone()
-            if not bai_lam:
-                messages.error(request, 'Bài làm không tồn tại.')
-                return redirect('xem_ket_qua_giao_vien')
 
-    id_bai_lam, id_hoc_sinh, id_de, ngay_nop, trang_thai, hinh_anh_bai_lam = bai_lam
-    de_thi = DeThi.objects.get(id=id_de)
-    hoc_sinh = HocSinh.objects.get(id=id_hoc_sinh)
+    ket_qua = KetQua.objects.filter(id_bai_lam=bai_lam).first()
+    chi_tiet = ChiTietBaiLam.objects.filter(id_bai_lam=bai_lam).select_related('id_cau_hoi')
 
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT id_cau_hoi, cau_tra_loi, ket_qua FROM chi_tiet_bai_lam WHERE id_bai_lam = %s", [id_bai_lam])
-        chi_tiet = cursor.fetchall()
+    ket_qua_chi_tiet = [
+        {
+            'cau_hoi': ct.id_cau_hoi,
+            'cau_tra_loi': ct.cau_tra_loi,
+            'dap_an_dung': ct.id_cau_hoi.dap_an_dung,
+            'ket_qua': ct.ket_qua
+        } for ct in chi_tiet
+    ]
 
-    ket_qua_chi_tiet = []
-    for ct in chi_tiet:
-        id_cau_hoi, cau_tra_loi, ket_qua = ct
-        cau_hoi = NganHangCauHoi.objects.get(id=id_cau_hoi)
-        ket_qua_chi_tiet.append({
-            'cau_hoi': cau_hoi,
-            'cau_tra_loi': cau_tra_loi,
-            'dap_an_dung': cau_hoi.dap_an_dung,
-            'ket_qua': ket_qua
-        })
-
-    ket_qua = KetQua.objects.filter(id_bai_lam=id_bai_lam).first()
     return render(request, 'chi_tiet_bai_lam.html', {
-        'bai_lam': {'id': id_bai_lam, 'de_thi': de_thi, 'hoc_sinh': hoc_sinh, 'ngay_nop': ngay_nop, 'trang_thai': trang_thai, 'hinh_anh': hinh_anh_bai_lam, 'diem': ket_qua.diem if ket_qua else None},
+        'bai_lam': {
+            'id': bai_lam.id,
+            'de_thi': bai_lam.id_de,
+            'hoc_sinh': bai_lam.id_hoc_sinh,
+            'ngay_nop': bai_lam.ngay_nop,
+            'trang_thai': bai_lam.trang_thai,
+            'hinh_anh': bai_lam.hinh_anh_bai_lam,
+            'diem': ket_qua.diem if ket_qua else None
+        },
         'chi_tiet': ket_qua_chi_tiet,
         'role': role
     })
-
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -694,3 +714,7 @@ def xuat_bao_cao_ket_qua(request, bai_lam_id):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="BaoCaoKetQua_{id_bai_lam}.pdf"'
     return response
+
+
+
+

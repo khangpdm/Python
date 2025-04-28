@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
 <h2>Danh sách bài làm của bạn</h2>
 {% if ket_qua_bai_lam %}
 <table border="1" cellpadding="10" cellspacing="0">
@@ -8,19 +11,26 @@
             <th>Ngày nộp</th>
             <th>Trạng thái</th>
             <th>Điểm</th>
-            <th>Chi tiết bài làm</th> 
+            <th>Số câu đúng</th>
+            <th>Số câu sai</th>
+            <th>Tỷ lệ đúng (%)</th>
+            <th>Chi tiết bài làm</th>
+        </tr>
     </thead>
     <tbody>
         {% for bl in ket_qua_bai_lam %}
         <tr>
-            <td>{{ bl.0 }}</td> 
-            <td>{{ bl.1 }}</td>
-            <td>{{ bl.2|date:"d/m/Y H:i" }}</td>
-            <td>{{ bl.3 }}</td>
-            <td>{{ bl.4 }}</td>
+            <td>{{ bl.id }}</td>
+            <td>{{ bl.ten_de }}</td>
+            <td>{{ bl.ngay_nop|date:"d/m/Y H:i" }}</td>
+            <td>{{ bl.trang_thai }}</td>
+            <td>{{ bl.diem|default:"Chưa chấm" }}</td>
+            <td>{{ bl.so_cau_dung }}</td>
+            <td>{{ bl.so_cau_sai }}</td>
+            <td>{{ bl.ty_le_dung }}</td>
             <td>
-                <a href="{% url 'chi_tiet_bai_lam' bl.0 %}" class="btn btn-info btn-sm">Xem chi tiết</a>
-                <a href="{% url 'xuat_bao_cao_ket_qua' bl.0 %}" class="btn btn-success btn-sm">Xuất PDF</a>
+                <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm">Xem chi tiết</a>
+                <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
             </td>
         </tr>
         {% endfor %}
