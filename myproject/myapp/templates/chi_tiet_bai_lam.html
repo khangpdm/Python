@@ -10,7 +10,9 @@
 
 <h3>Hình ảnh bài thi</h3>
 {% if bai_lam.hinh_anh %}
-    <img src="/media/{{ bai_lam.hinh_anh }}" alt="Hình ảnh bài thi" style="max-width: 100%;">
+    <a href="{{ bai_lam.hinh_anh.url }}" target="_blank" rel="noopener noreferrer">
+        <img src="{{ bai_lam.hinh_anh.url }}" alt="Hình ảnh bài thi" style="max-width: 400px; cursor: pointer;">
+    </a>
 {% else %}
     <p>Không có hình ảnh bài thi.</p>
 {% endif %}
@@ -49,5 +51,10 @@
     {% endfor %}
 </table>
 
-<a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success">Xuất báo cáo PDF</a>
-<a href="{% url 'xem_ket_qua' %}">← Quay lại</a>
+<div class="button-group-container">
+    <a href="{% url 'xem_ket_qua' %}" class="btn btn-secondary">← Quay lại</a>
+    {% if bai_lam.trang_thai == "dang_cho_cham" and role == "teacher" %}
+        <a href="{% url 'mark_as_graded' bai_lam.id %}" class="btn btn-warning" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu bài làm này là đã chấm?');">Đánh dấu đã chấm</a>
+    {% endif %}
+    <a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success">Xuất báo cáo PDF</a>    
+</div>

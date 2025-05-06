@@ -136,7 +136,7 @@ def danh_sach_de_thi(request):
 def xoa_de_thi(request, id):
     de_thi = get_object_or_404(DeThi, pk=id)
 
-    # Xoá các câu hỏi liên quan
+    # Xoá các câu hỏi liên quanz
     DeThiChiTiet.objects.filter(de_thi=de_thi).delete()
 
     # Xoá đề
@@ -357,7 +357,7 @@ def upload_exam(request):
                 total_correct = 0
                 total_questions = DeThiChiTiet.objects.filter(de_thi=de_thi).count()
                 for cau_hoi_id, cau_tra_loi in answers_dict.items():
-                    cau_hoi = NganHangCauHoi.objects.get(id=cau_hoi_id)
+                    cau_hoi = NganHangCauHoi.objects.get(id=int(cau_hoi_id))
                     ket_qua = 'Đúng' if cau_tra_loi == cau_hoi.dap_an_dung else 'Sai'
                     if ket_qua == 'Đúng':
                         total_correct += 1
@@ -394,25 +394,32 @@ def upload_exam(request):
     
 def xem_ket_qua(request):
     username = request.session.get('username')
+    role = request.session.get('role')
     if not username:
         messages.error(request, 'Bạn cần đăng nhập để xem kết quả.')
         return redirect('login')
 
-    try:
-        hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
-    except HocSinh.DoesNotExist:
-        messages.error(request, 'Không tìm thấy học sinh.')
-        return redirect('login')
-
     ket_qua_bai_lam = []
-    for bl in BaiLam.objects.filter(id_hoc_sinh=hoc_sinh).select_related('id_de').order_by('-ngay_nop'):
+
+    if role == 'student':
+        try:
+            hoc_sinh = HocSinh.objects.get(ten_dang_nhap=username)
+        except HocSinh.DoesNotExist:
+            messages.error(request, 'Không tìm thấy học sinh.')
+            return redirect('login')
+
+        bai_lam_qs = BaiLam.objects.filter(id_hoc_sinh=hoc_sinh).select_related('id_de').order_by('-ngay_nop')
+    elif role == 'teacher':
+        bai_lam_qs = BaiLam.objects.all().select_related('id_de').order_by('-ngay_nop')
+    else:
+        messages.error(request, 'Bạn không có quyền xem kết quả.')
+        return redirect('home')
+
+    for bl in bai_lam_qs:
         ket_qua = KetQua.objects.filter(id_bai_lam=bl).first()
-        # Get question IDs for the exam
         question_ids = DeThiChiTiet.objects.filter(de_thi=bl.id_de).values_list('cau_hoi_id', flat=True)
         total_questions = len(question_ids)
-        # Count correct answers only for questions in the exam
         so_cau_dung = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Đúng', id_cau_hoi__in=question_ids).count()
-        # Count wrong answers only for questions in the exam
         so_cau_sai = ChiTietBaiLam.objects.filter(id_bai_lam=bl, ket_qua='Sai', id_cau_hoi__in=question_ids).count()
         so_cau_chua_tra_loi = total_questions - (so_cau_dung + so_cau_sai)
         ty_le_dung = (so_cau_dung / total_questions * 100) if total_questions > 0 else 0
@@ -430,6 +437,23 @@ def xem_ket_qua(request):
         })
 
     return render(request, 'xem_ket_qua.html', {'ket_qua_bai_lam': ket_qua_bai_lam})
+
+def mark_as_graded(request, bai_lam_id):
+    username = request.session.get('username')
+    role = request.session.get('role')
+    if not username or role != 'teacher':
+        messages.error(request, 'Bạn không có quyền thực hiện hành động này.')
+        return redirect('xem_ket_qua')
+
+    bai_lam = get_object_or_404(BaiLam, id=bai_lam_id)
+    if bai_lam.trang_thai == 'dang_cho_cham':
+        bai_lam.trang_thai = 'da_cham'
+        bai_lam.save()
+        messages.success(request, f'Bài làm ID {bai_lam_id} đã được đánh dấu là đã chấm.')
+    else:
+        messages.info(request, f'Bài làm ID {bai_lam_id} đã ở trạng thái {bai_lam.trang_thai}.')
+
+    return redirect('xem_ket_qua')
 
 
 
@@ -683,7 +707,7 @@ def xuat_bao_cao_ket_qua(request, bai_lam_id):
 
     # Ghi tiêu đề
     p.drawString(2 * cm, 28 * cm, f"BÁO CÁO KẾT QUẢ BÀI LÀM #{id_bai_lam}")
-    p.drawString(2 * cm, 27 * cm, f"Học sinh: {hoc_sinh.ho_ten}")
+    p.drawString(2 * cm, 27 * cm, f"Học sinh: {hoc_sinh.ten_dang_nhap}")
     p.drawString(2 * cm, 26 * cm, f"Đề thi: {de_thi.ten_de}")
     p.drawString(2 * cm, 25 * cm, f"Ngày nộp: {ngay_nop.strftime('%d/%m/%Y %H:%M')}")
     p.drawString(2 * cm, 24 * cm, f"Điểm: {ket_qua.diem if ket_qua else 'Chưa chấm'}")

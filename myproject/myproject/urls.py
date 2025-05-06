@@ -19,6 +19,9 @@ from django.urls import path
 from myapp.views import home, cau_hoi_list  # Import thêm view cau_hoi_list
 from myapp import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home_view, name='home'),
@@ -43,5 +46,9 @@ urlpatterns = [
     path('xem_pdf_de_thi/<int:de_thi_id>/', views.xem_pdf_de_thi, name='xem_pdf_de_thi'),
     path('chi-tiet-bai-lam/<int:bai_lam_id>/', views.chi_tiet_bai_lam, name='chi_tiet_bai_lam'),
     path('xuat-bao-cao/<int:bai_lam_id>/', views.xuat_bao_cao_ket_qua, name='xuat_bao_cao_ket_qua'),
+    path('mark-as-graded/<int:bai_lam_id>/', views.mark_as_graded, name='mark_as_graded'),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

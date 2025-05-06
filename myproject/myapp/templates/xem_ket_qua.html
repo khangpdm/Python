@@ -26,7 +26,7 @@
             <td>{{ bl.trang_thai }}</td>
             <td>
                 {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.diem|default:"Chưa chấm" }}
+                    {{ bl.diem }}
                 {% else %}
 &mdash;
                 {% endif %}
@@ -62,12 +62,16 @@
             <td>
                 <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm">Xem chi tiết</a>
                 <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
+                {% if bl.trang_thai == "dang_cho_cham" and request.session.role == "teacher" %}
+                    {# Removed the button here to reduce clutter as per user feedback #}
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<a href="{% url 'home' %}">← Quay lại trang chủ</a>
+<a href="{% url 'home' %}" class="back-link">← Quay lại trang chủ</a>
+
 {% else %}
 <p>Bạn chưa có bài làm nào.</p>
 {% endif %}

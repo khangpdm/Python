@@ -101,7 +101,7 @@ def map_answer(idx):
     else:
         return "D"
 
-def get_answers(list_answers):
+def get_answers(list_answers, id_bai_lam):
     results = defaultdict(list)
     model = SimpleCNN('model_weight.pth')
     
@@ -115,13 +115,23 @@ def get_answers(list_answers):
         # Chuyển đổi và chuẩn hóa dữ liệu đầu vào
         scores = model(torch.tensor(list_answers, dtype=torch.float32).permute(0, 3, 1, 2) / 255.0)
 
+    # Get question IDs for the exam ordered by question order
+    # This requires passing id_bai_lam or id_de to this function or refactoring
+    # For now, we will assume the question_ids are fetched here for mapping
+
+    # We will fetch question_ids here for mapping keys
+    from myapp.models import BaiLam, DeThiChiTiet
+    bai_lam = BaiLam.objects.get(id=id_bai_lam)
+    question_ids = list(DeThiChiTiet.objects.filter(de_thi=bai_lam.id_de).order_by('thu_tu').values_list('cau_hoi_id', flat=True))
+
     for idx, score in enumerate(scores):
         question = idx // 4
+        question_id = question_ids[question] if question < len(question_ids) else None
 
         # Kiểm tra xem xác suất cho lựa chọn đã chọn có lớn hơn 0.9 không
-        if score[1] > 0.9:
+        if score[1] > 0.9 and question_id is not None:
             chosed_answer = map_answer(idx)
-            results[question + 1].append(chosed_answer)  # Thêm câu trả lời vào kết quả
+            results[question_id].append(chosed_answer)  # Thêm câu trả lời vào kết quả
 
     return results
 
@@ -132,6 +142,7 @@ def get_correct_answer(question_id):
     except NganHangCauHoi.DoesNotExist:
         return None
 
+
 def save_answers_to_db(answers, id_bai_lam):
     bai_lam = BaiLam.objects.get(id=id_bai_lam)
     # Delete existing ChiTietBaiLam entries for this bai_lam to avoid duplicates
@@ -140,10 +151,10 @@ def save_answers_to_db(answers, id_bai_lam):
     # Get all question IDs for the exam ordered by question order
     question_ids = list(DeThiChiTiet.objects.filter(de_thi=bai_lam.id_de).order_by('thu_tu').values_list('cau_hoi_id', flat=True))
 
-    # Iterate over question order and map to question IDs
-    for idx, question_id in enumerate(question_ids, start=1):
-        if idx in answers:
-            answer_list = answers[idx]
+    # Iterate over question IDs and use them as keys in answers
+    for question_id in question_ids:
+        if question_id in answers:
+            answer_list = answers[question_id]
             if len(answer_list) > 1:
                 combined_answer = ', '.join(answer_list)
                 ket_qua = 'Sai'
@@ -196,7 +207,7 @@ def grade_exam(image_path, id_bai_lam):
     list_ans_boxes = crop_image(img)
     list_ans = process_ans_blocks(list_ans_boxes)
     list_answers = process_list_ans(list_ans)
-    answers = get_answers(list_answers)
+    answers = get_answers(list_answers, id_bai_lam)
 
     for question, answer in answers.items():
         print(f"Câu hỏi {question}: {', '.join(answer)}")
