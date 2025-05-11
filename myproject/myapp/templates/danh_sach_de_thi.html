@@ -1,10 +1,17 @@
 {% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách đề thi</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
     <h2>Danh sách đề thi đã tạo</h2>
     
-    <table border="1" cellpadding="10">
+    <table class="exam-table">
         <thead>
             <tr>
                 <th>Mã Đề</th>
@@ -21,19 +28,239 @@
                 <td>{{ de_thi.ten_de }}</td>
                 <td>{{ de_thi.ngay_tao|date:"d/m/Y H:i" }}</td>
                 <td>{{ de_thi.id_giao_vien.ten_dang_nhap }}</td>
-                <td>
-                    <a href="{% url 'xem_de_thi' de_thi.id %}" class="btn btn-info btn-sm">Xem</a>
-                    <a href="{% url 'xoa_de_thi' de_thi.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Xoá đề này?')">Xoá</a>
-                    <a href="{% url 'xuat_pdf_de_thi' de_thi.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
-
+                <td class="action-links">
+                    <a href="{% url 'xem_de_thi' de_thi.id %}" class="btn btn-info" title="Xem"><i class="fas fa-eye"></i></a>
+                    <a href="{% url 'xoa_de_thi' de_thi.id %}" class="btn btn-danger" onclick="return confirm('Xoá đề này?')" title="Xoá"><i class="fas fa-trash-alt"></i></a>
+                    <a href="{% url 'xuat_pdf_de_thi' de_thi.id %}" class="btn btn-success" title="Xuất PDF"><i class="fas fa-file-pdf"></i></a>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5">Chưa có đề thi nào.</td></tr>
+            <tr>
+                <td colspan="5" class="empty-message">Chưa có đề thi nào.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <a href="{% url 'tao_de_thi' %}">Tạo Đề Thi Mới</a>
-    <a href="{% url 'home' %}">← Quay lại trang chủ</a>
+    <div class="button-group">
+        <a href="{% url 'tao_de_thi' %}" class="btn btn-primary">Tạo Đề Thi Mới</a>
+        <a href="{% url 'home' %}" class="back-link">← Quay lại trang chủ</a>
+    </div>
 
+    <style>
+        
+        h2 {
+            font-size: 2.2rem;
+            color: #1a2a44;
+            margin: 20px auto;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .exam-table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+
+        .exam-table thead {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            font-weight: 600;
+        }
+
+        .exam-table th,
+        .exam-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease;
+            overflow-wrap: break-word;
+        }
+
+
+        .exam-table th:nth-child(1),
+        .exam-table td:nth-child(1) {
+            width: 15%; 
+        }
+
+        .exam-table th:nth-child(2),
+        .exam-table td:nth-child(2) {
+            width: 25%; 
+        }
+
+        .exam-table th:nth-child(3),
+        .exam-table td:nth-child(3) {
+            width: 20%; 
+        }
+
+        .exam-table th:nth-child(4),
+        .exam-table td:nth-child(4) {
+            width: 20%; 
+        }
+
+        .exam-table th:nth-child(5) {
+            width: 20%; 
+            text-align: center;
+        }
+
+        .exam-table tr:hover {
+            background-color: #f5f7fa;
+        }
+
+        .exam-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Thông báo khi không có đề thi */
+        .empty-message {
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Cải thiện cột thao tác */
+        .action-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-links .btn {
+            padding: 8px;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1e3c72);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4a90e2, #2a5298);
+            transform: translateY(-2px);
+        }
+
+        
+        .back-link {
+            display: inline-block;
+            font-weight: 500;
+            text-decoration: none;
+            color: #007bff;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Nhóm các nút dưới bảng */
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .exam-table {
+                width: 95%;
+                font-size: 14px;
+            }
+
+            .exam-table th,
+            .exam-table td {
+                padding: 10px;
+            }
+
+            .exam-table th:nth-child(5),
+            .exam-table td.action-links {
+                width: 150px; 
+            }
+
+            .action-links .btn {
+                width: 32px;
+                height: 32px;
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .btn-primary {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</body>
+</html>

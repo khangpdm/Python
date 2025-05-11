@@ -64,13 +64,16 @@ class GiaoVien(models.Model):
         managed = False
 
 class HocSinh(models.Model):
-    id = models.AutoField(primary_key=True)
     ten_dang_nhap = models.CharField(max_length=50, unique=True)
-    mat_khau = models.CharField(max_length=255)
+    mat_khau = models.CharField(max_length=128)  
+    dark_mode = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'hoc_sinh'
-        managed = False
+        db_table = 'hoc_sinh'  
+        managed = False  
+
+    def __str__(self):
+        return self.ten_dang_nhap
 
 
 

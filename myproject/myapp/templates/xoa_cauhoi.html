@@ -1,7 +1,151 @@
-<h2>Xác nhận xoá</h2>
-<p>Bạn có chắc muốn xoá câu hỏi: "{{ cauhoi.noi_dung }}"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Xác nhận xoá</button>
-</form>
-<a href="{% url 'cau_hoi_list' %}">← Huỷ</a>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận xoá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="confirmation-container">
+        <h2>Xác nhận xoá</h2>
+        <p>Bạn có chắc muốn xoá câu hỏi: "<strong>{{ cauhoi.noi_dung }}</strong>"?</p>
+        <form method="post" class="confirmation-form">
+            {% csrf_token %}
+            <div class="button-group">
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Xác nhận xoá</button>
+                <a href="{% url 'cau_hoi_list' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Huỷ</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        
+        .confirmation-container {
+            width: 90%;
+            max-width: 500px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        
+        h2 {
+            font-size: 2rem;
+            color: #1a2a44;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        
+        p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        p strong {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+    
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #e05260, #c82333);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-danger:active {
+            transform: translateY(0);
+        }
+
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        
+        @media (max-width: 768px) {
+            .confirmation-container {
+                width: 95%;
+                padding: 20px;
+                margin: 30px auto;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-danger,
+            .btn-secondary {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>

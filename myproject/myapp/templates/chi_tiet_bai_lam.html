@@ -1,60 +1,317 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết bài làm #{{ bai_lam.id }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="submission-detail-container">
+        <h2>Chi tiết bài làm #{{ bai_lam.id }}</h2>
+        <div class="info-section">
+            <p><strong>Đề thi:</strong> {{ bai_lam.de_thi.ten_de }}</p>
+            <p><strong>Học sinh:</strong> {{ bai_lam.hoc_sinh.ho_ten|default:bai_lam.hoc_sinh.ten_dang_nhap }}</p>
+            <p><strong>Ngày nộp:</strong> {{ bai_lam.ngay_nop|date:"d/m/Y H:i" }}</p>
+            <p><strong>Trạng thái:</strong> {{ bai_lam.trang_thai|default:"Đang chờ chấm" }}</p>
+            <p><strong>Điểm:</strong> {{ bai_lam.diem|default:"Chưa chấm" }}</p>
+        </div>
 
-<h2>Chi tiết bài làm #{{ bai_lam.id }}</h2>
-<p><strong>Đề thi:</strong> {{ bai_lam.de_thi.ten_de }}</p>
-<p><strong>Học sinh:</strong> {{ bai_lam.hoc_sinh.ho_ten|default:bai_lam.hoc_sinh.ten_dang_nhap }}</p>
-<p><strong>Ngày nộp:</strong> {{ bai_lam.ngay_nop|date:"d/m/Y H:i" }}</p>
-<p><strong>Trạng thái:</strong> {{ bai_lam.trang_thai|default:"Đang chờ chấm" }}</p>
-<p><strong>Điểm:</strong> {{ bai_lam.diem|default:"Chưa chấm" }}</p>
-
-<h3>Hình ảnh bài thi</h3>
-{% if bai_lam.hinh_anh %}
-    <a href="{{ bai_lam.hinh_anh.url }}" target="_blank" rel="noopener noreferrer">
-        <img src="{{ bai_lam.hinh_anh.url }}" alt="Hình ảnh bài thi" style="max-width: 400px; cursor: pointer;">
-    </a>
-{% else %}
-    <p>Không có hình ảnh bài thi.</p>
-{% endif %}
-
-<h3>Đáp án nhận diện</h3>
-<table border="1" cellpadding="5" cellspacing="0">
-    <tr>
-        <th>STT</th>
-        <th>Câu hỏi</th>
-        <th>Đáp án chọn</th>
-        <th>Đáp án đúng</th>
-        <th>Kết quả</th>
-    </tr>
-    {% for ct in chi_tiet %}
-    <tr>
-        <td>{{ forloop.counter }}</td> 
-        <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
-        <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
-        <td>
-            {% if bai_lam.trang_thai == "da_cham" %}
-                {{ ct.dap_an_dung }}
+        <h3>Hình ảnh bài thi</h3>
+        <div class="image-section">
+            {% if bai_lam.hinh_anh %}
+                <a href="{{ bai_lam.hinh_anh.url }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ bai_lam.hinh_anh.url }}" alt="Hình ảnh bài thi" class="submission-image">
+                </a>
             {% else %}
-                &mdash;
+                <p class="no-image">Không có hình ảnh bài thi.</p>
             {% endif %}
-        </td>
-        <td>
-            {% if bai_lam.trang_thai == "da_cham" %}
-                {{ ct.ket_qua|default:"Chưa chấm" }}
-            {% else %}
-                &mdash;
-            {% endif %}
-        </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="5">Không có dữ liệu.</td></tr>
-    {% endfor %}
-</table>
+        </div>
 
-<div class="button-group-container">
-    <a href="{% url 'xem_ket_qua' %}" class="btn btn-secondary">← Quay lại</a>
-    {% if bai_lam.trang_thai == "dang_cho_cham" and role == "teacher" %}
-        <a href="{% url 'mark_as_graded' bai_lam.id %}" class="btn btn-warning" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu bài làm này là đã chấm?');">Đánh dấu đã chấm</a>
-    {% endif %}
-    <a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success">Xuất báo cáo PDF</a>    
-</div>
+        <h3>Đáp án nhận diện</h3>
+        <table class="answer-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Câu hỏi</th>
+                    <th>Đáp án chọn</th>
+                    <th>Đáp án đúng</th>
+                    <th>Kết quả</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ct in chi_tiet %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ ct.cau_hoi.noi_dung|truncatewords:20 }}</td>
+                    <td>{{ ct.cau_tra_loi|default:"Không chọn" }}</td>
+                    <td>
+                        {% if bai_lam.trang_thai == "da_cham" %}
+                            {{ ct.dap_an_dung }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if bai_lam.trang_thai == "da_cham" %}
+                            {{ ct.ket_qua|default:"Chưa chấm" }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-message">Không có dữ liệu.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="button-group">
+            <a href="{% url 'xem_ket_qua' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+            {% if bai_lam.trang_thai == "dang_cho_cham" and role == "teacher" %}
+                <a href="{% url 'mark_as_graded' bai_lam.id %}" class="btn btn-warning" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu bài làm này là đã chấm?');"><i class="fas fa-check-circle"></i> Đánh dấu đã chấm</a>
+            {% endif %}
+            <a href="{% url 'xuat_bao_cao_ket_qua' bai_lam.id %}" class="btn btn-success"><i class="fas fa-file-pdf"></i> Xuất báo cáo PDF</a>
+        </div>
+    </div>
+
+    <style>
+        
+        .submission-detail-container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        
+        h2, h3 {
+            color: #1a2a44;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+        }
+
+        
+        .info-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-section p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .info-section p strong {
+            color: #1a2a44;
+            font-weight: 600;
+        }
+
+        
+        .image-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .submission-image {
+            max-width: 100%;
+            width: 400px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .submission-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .no-image {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        
+        .answer-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+
+        .answer-table thead {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            font-weight: 600;
+        }
+
+        .answer-table th,
+        .answer-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease;
+            overflow-wrap: break-word;
+        }
+
+        
+        .answer-table th:nth-child(1),
+        .answer-table td:nth-child(1) {
+            width: 8%; 
+        }
+
+        .answer-table th:nth-child(2),
+        .answer-table td:nth-child(2) {
+            width: 40%; 
+        }
+
+        .answer-table th:nth-child(3),
+        .answer-table td:nth-child(3) {
+            width: 17%; 
+        }
+
+        .answer-table th:nth-child(4),
+        .answer-table td:nth-child(4) {
+            width: 17%; 
+        }
+
+        .answer-table th:nth-child(5),
+        .answer-table td:nth-child(5) {
+            width: 18%; 
+        }
+
+        .answer-table tr:hover {
+            background-color: #f5f7fa;
+        }
+
+        .answer-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .button-group .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f1c40f, #d4a017);
+            color: #121212;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f4d03f, #f1c40f);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #34ce57, #28a745);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        
+        @media (max-width: 768px) {
+            .submission-detail-container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            .info-section p {
+                font-size: 1rem;
+            }
+
+            .answer-table th,
+            .answer-table td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .button-group .btn {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</body>
+</html>

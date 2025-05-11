@@ -195,36 +195,43 @@ def xuat_pdf_de_thi(request, id):
 
 
 
-# views.py
+from django.contrib.auth.hashers import check_password
 from myapp.models import GiaoVien, HocSinh
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+from myapp.models import GiaoVien, HocSinh
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
+        # Kiểm tra tài khoản giáo viên từ bảng giao_vien
         try:
-            teacher = GiaoVien.objects.get(ten_dang_nhap=username, mat_khau=password)
-            request.session['username'] = teacher.ten_dang_nhap
-            request.session['role'] = 'teacher'
-            return redirect('home')
+            teacher = GiaoVien.objects.get(ten_dang_nhap=username)
+            if password == teacher.mat_khau:  # So sánh trực tiếp vì không mã hóa
+                request.session['username'] = username
+                request.session['role'] = 'teacher'
+                return redirect('home')
+            else:
+                messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng.')
         except GiaoVien.DoesNotExist:
-            pass
+            # Nếu không tìm thấy trong bảng giao_vien, kiểm tra bảng hoc_sinh
+            try:
+                student = HocSinh.objects.get(ten_dang_nhap=username)
+                if password == student.mat_khau:  # So sánh trực tiếp vì không mã hóa
+                    request.session['username'] = username
+                    request.session['role'] = 'student'
+                    return redirect('home')
+                else:
+                    messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng.')
+            except HocSinh.DoesNotExist:
+                messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng.')
 
-        try:
-            student = HocSinh.objects.get(ten_dang_nhap=username, mat_khau=password)
-            request.session['username'] = student.ten_dang_nhap
-            request.session['role'] = 'student'
-            return redirect('home')
-        except HocSinh.DoesNotExist:
-            pass
-
-        return render(request, 'index.html', {
-            'error': 'Sai tài khoản hoặc mật khẩu!',
-            'login_success': False
-        })
-
-    return redirect('home')
+    return render(request, 'index.html')
 
 
 def logout_view(request):
@@ -744,3 +751,32 @@ def xuat_bao_cao_ket_qua(request, bai_lam_id):
 
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
+from .models import HocSinh
+from .forms import StudentRegistrationForm
+
+def them_hoc_sinh(request):
+    if request.session.get('role') != 'teacher':
+        messages.error(request, 'Chỉ giáo viên mới có thể thêm học sinh.')
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = StudentRegistrationForm(request.POST)
+        if form.is_valid():
+            ten_dang_nhap = form.cleaned_data['ten_dang_nhap']
+            mat_khau = form.cleaned_data['mat_khau']  
+            HocSinh.objects.create(
+                ten_dang_nhap=ten_dang_nhap,
+                mat_khau=mat_khau,
+                dark_mode=0
+            )
+            messages.success(request, f'Tài khoản học sinh "{ten_dang_nhap}" đã được tạo thành công.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
+    else:
+        form = StudentRegistrationForm()
+
+    return render(request, 'them_hoc_sinh.html', {'form': form})

@@ -7,6 +7,7 @@
     <title>Chấm Trắc Nghiệm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">  
+
 </head>
 <body>
     <header id="header">
@@ -41,7 +42,7 @@
                 <li><a href="{% url 'danh_sach_de_thi' %}"><button>Quản lý đề thi</button></a></li>
                 <li><a href="{% url 'cau_hoi_list' %}"><button>Quản lý câu hỏi</button></a></li>
                 <li><a href="{% url 'xem_ket_qua' %}"><button>Xem kết quả học sinh</button></a></li>
-                <li><a href="#"><button>Xuất báo cáo</button></a></li>
+                <li><a href="{% url 'them_hoc_sinh' %}"><button>Thêm học sinh</button></a></li>
             </ul>
             <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
         </section>
@@ -101,7 +102,7 @@
             <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
         </footer>
 
-            <form method="POST" action="{% url 'login' %}" id="loginForm" style="display: none;">
+            <form method="POST" action="{% url 'login' %}" id="loginForm" >
                 <div id="login">
                     {% csrf_token %}
                     <h2>Đăng nhập</h2> 
@@ -114,5 +115,25 @@
     </div>
     {% endif %}
     <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        function showLoginForm(event) {
+            event.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.classList.add('show');
+            } else {
+                console.error('Login form not found in the DOM.');
+            }
+        }
+
+        function closeLoginForm() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.classList.remove('show');
+                const loginMessage = document.getElementById('loginMessage');
+                if (loginMessage) loginMessage.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

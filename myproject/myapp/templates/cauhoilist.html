@@ -1,32 +1,212 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">  
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 <h2>Danh sách câu hỏi</h2>
-<a href="{% url 'them_cau_hoi' %}">➕ Thêm câu hỏi</a>
-<table border="1">
-    <tr>
-        <th>Nội dung</th>
-        <th>A</th>
-        <th>B</th>
-        <th>C</th>
-        <th>D</th>
-        <th>Đáp án đúng</th>
-        <th>Hành động</th>
-    </tr>
-    {% for cauhoi in danh_sach_cau_hoi %}
-    <tr>
-        <td>{{ cauhoi.noi_dung }}</td>
-        <td>{{ cauhoi.dap_an_A }}</td>
-        <td>{{ cauhoi.dap_an_B }}</td>
-        <td>{{ cauhoi.dap_an_C }}</td>
-        <td>{{ cauhoi.dap_an_D }}</td>
-        <td>{{ cauhoi.dap_an_dung }}</td>
-        <td>
-            <a href="{% url 'sua_cau_hoi' cauhoi.id %}">✏️</a>
-            <a href="{% url 'xoa_cau_hoi' cauhoi.id %}">🗑️</a>
-        </td>
-    </tr>
-    {% endfor %}
+<a href="{% url 'them_cau_hoi' %}" class="btn btn-success">➕ Thêm câu hỏi</a>
+<table class="question-table">
+    <thead>
+        <tr>
+            <th>Nội dung</th>
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>Đáp án đúng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cauhoi in danh_sach_cau_hoi %}
+        <tr>
+            <td>{{ cauhoi.noi_dung }}</td>
+            <td>{{ cauhoi.dap_an_A }}</td>
+            <td>{{ cauhoi.dap_an_B }}</td>
+            <td>{{ cauhoi.dap_an_C }}</td>
+            <td>{{ cauhoi.dap_an_D }}</td>
+            <td>{{ cauhoi.dap_an_dung }}</td>
+            <td class="action-links">
+                <a href="{% url 'sua_cau_hoi' cauhoi.id %}" class="btn btn-info">✏️</a>
+                <a href="{% url 'xoa_cau_hoi' cauhoi.id %}" class="btn btn-danger">🗑️</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-<a href="{% url 'home' %}">← Quay lại trang chủ</a>
+<a href="{% url 'home' %}" class="back-link">← Quay lại trang chủ</a>
 
+<style>
+
+    h2 {
+        font-size: 2.2rem;
+        color: #1a2a44;
+        margin: 20px auto;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+
+    .question-table {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        table-layout: fixed; 
+    }
+
+    .question-table thead {
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        color: white;
+        font-weight: 600;
+    }
+
+    .question-table th,
+    .question-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #e0e0e0;
+        transition: background-color 0.3s ease;
+        overflow-wrap: break-word; 
+    }
+
+
+    .question-table th:nth-child(1),
+    .question-table td.content-column {
+        width: 30%; 
+    }
+
+    .question-table th:nth-child(2),
+    .question-table th:nth-child(3),
+    .question-table th:nth-child(4),
+    .question-table th:nth-child(5),
+    .question-table th:nth-child(6),
+    .question-table td:not(.content-column):not(.action-links) {
+        width: 10%; 
+    }
+
+    .question-table th.action-column,
+    .question-table td.action-links {
+        width: 120px;
+        text-align: center;
+    }
+
+    .question-table tr:hover {
+        background-color: #f5f7fa;
+    }
+
+    .question-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .action-links {
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .action-links .btn {
+        padding: 8px;
+        margin: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+
+        transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+    }
+
+    /* Cải thiện nút quay lại */
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        font-weight: 500;
+        text-decoration: none;
+        color: #007bff;
+        padding: 8px 15px;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .back-link:hover {
+        background-color: #007bff;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .question-table {
+            width: 95%;
+            font-size: 14px;
+        }
+
+        .question-table th,
+        .question-table td {
+            padding: 10px;
+        }
+
+        .question-table th.action-column,
+        .question-table td.action-links {
+            width: 100px; /* Giảm chiều rộng cột "Hành động" trên mobile */
+        }
+
+        .action-links .btn {
+            width: 32px;
+            height: 32px;
+            padding: 6px;
+            font-size: 12px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        .btn-success {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+    }
+</style>

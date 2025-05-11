@@ -47,7 +47,7 @@ urlpatterns = [
     path('chi-tiet-bai-lam/<int:bai_lam_id>/', views.chi_tiet_bai_lam, name='chi_tiet_bai_lam'),
     path('xuat-bao-cao/<int:bai_lam_id>/', views.xuat_bao_cao_ket_qua, name='xuat_bao_cao_ket_qua'),
     path('mark-as-graded/<int:bai_lam_id>/', views.mark_as_graded, name='mark_as_graded'),
-
+    path('them-hoc-sinh/', views.them_hoc_sinh, name='them_hoc_sinh'),
 ]
 
 if settings.DEBUG:

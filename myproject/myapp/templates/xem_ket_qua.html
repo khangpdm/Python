@@ -1,77 +1,288 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<h2>Danh sách bài làm của bạn</h2>
-{% if ket_qua_bai_lam %}
-<table border="1" cellpadding="10" cellspacing="0">
-    <thead>
-        <tr>
-            <th>ID Bài làm</th>
-            <th>Tên đề thi</th>
-            <th>Ngày nộp</th>
-            <th>Trạng thái</th>
-            <th>Điểm</th>
-            <th>Số câu đúng</th>
-            <th>Số câu sai</th>
-            <th>Số câu chưa trả lời</th>
-            <th>Tỷ lệ đúng (%)</th>
-            <th>Chi tiết bài làm</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for bl in ket_qua_bai_lam %}
-        <tr>
-            <td>{{ bl.id }}</td>
-            <td>{{ bl.ten_de }}</td>
-            <td>{{ bl.ngay_nop|date:"d/m/Y H:i" }}</td>
-            <td>{{ bl.trang_thai }}</td>
-            <td>
-                {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.diem }}
-                {% else %}
-&mdash;
-                {% endif %}
-            </td>
-            <td>
-                {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.so_cau_dung }}
-                {% else %}
-&mdash;
-                {% endif %}
-            </td>
-            <td>
-                {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.so_cau_sai }}
-                {% else %}
-&mdash;
-                {% endif %}
-            </td>
-            <td>
-                {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.so_cau_chua_tra_loi }}
-                {% else %}
-&mdash;
-                {% endif %}
-            </td>
-            <td>
-                {% if bl.trang_thai == "da_cham" %}
-                    {{ bl.ty_le_dung }}
-                {% else %}
-&mdash;
-                {% endif %}
-            </td>
-            <td>
-                <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm">Xem chi tiết</a>
-                <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm">Xuất PDF</a>
-                {% if bl.trang_thai == "dang_cho_cham" and request.session.role == "teacher" %}
-                    {# Removed the button here to reduce clutter as per user feedback #}
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<a href="{% url 'home' %}" class="back-link">← Quay lại trang chủ</a>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách bài làm của bạn</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <h2>Danh sách bài làm của bạn</h2>
+    {% if ket_qua_bai_lam %}
+    <table class="submission-table">
+        <thead>
+            <tr>
+                <th>ID Bài làm</th>
+                <th>Tên đề thi</th>
+                <th>Ngày nộp</th>
+                <th>Trạng thái</th>
+                <th>Điểm</th>
+                <th>Số câu đúng</th>
+                <th>Số câu sai</th>
+                <th>Số câu chưa trả lời</th>
+                <th>Tỷ lệ đúng (%)</th>
+                <th>Chi tiết bài làm</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bl in ket_qua_bai_lam %}
+            <tr>
+                <td>{{ bl.id }}</td>
+                <td>{{ bl.ten_de }}</td>
+                <td>{{ bl.ngay_nop|date:"d/m/Y H:i" }}</td>
+                <td>{{ bl.trang_thai }}</td>
+                <td>
+                    {% if bl.trang_thai == "da_cham" %}
+                        {{ bl.diem }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if bl.trang_thai == "da_cham" %}
+                        {{ bl.so_cau_dung }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if bl.trang_thai == "da_cham" %}
+                        {{ bl.so_cau_sai }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if bl.trang_thai == "da_cham" %}
+                        {{ bl.so_cau_chua_tra_loi }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if bl.trang_thai == "da_cham" %}
+                        {{ bl.ty_le_dung }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td class="action-links">
+                    <a href="{% url 'chi_tiet_bai_lam' bl.id %}" class="btn btn-info btn-sm" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                    <a href="{% url 'xuat_bao_cao_ket_qua' bl.id %}" class="btn btn-success btn-sm" title="Xuất PDF"><i class="fas fa-file-pdf"></i></a>
+                    {% if bl.trang_thai == "dang_cho_cham" and request.session.role == "teacher" %}
+                        {# Removed the button here to reduce clutter as per user feedback #}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'home' %}" class="back-link">← Quay lại trang chủ</a>
+    {% else %}
+    <p class="no-submission">Bạn chưa có bài làm nào.</p>
+    {% endif %}
 
-{% else %}
-<p>Bạn chưa có bài làm nào.</p>
-{% endif %}
+    <style>
+        
+        h2 {
+            font-size: 2.2rem;
+            color: #1a2a44;
+            margin: 20px auto;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        
+        .submission-table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            table-layout: fixed; 
+        }
+
+        .submission-table thead {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            font-weight: 600;
+        }
+
+        .submission-table th,
+        .submission-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease;
+            overflow-wrap: break-word; 
+        }
+
+        /* Cố định chiều rộng các cột */
+        .submission-table th:nth-child(1),
+        .submission-table td:nth-child(1) {
+            width: 8%; 
+        }
+
+        .submission-table th:nth-child(2),
+        .submission-table td:nth-child(2) {
+            width: 15%; 
+        }
+
+        .submission-table th:nth-child(3),
+        .submission-table td:nth-child(3) {
+            width: 10%; 
+        }
+
+        .submission-table th:nth-child(4),
+        .submission-table td:nth-child(4) {
+            width: 10%; 
+        }
+
+        .submission-table th:nth-child(5),
+        .submission-table td:nth-child(5) {
+            width: 8%; 
+        }
+
+        .submission-table th:nth-child(6),
+        .submission-table td:nth-child(6) {
+            width: 8%; 
+        }
+
+        .submission-table th:nth-child(7),
+        .submission-table td:nth-child(7) {
+            width: 8%; 
+        }
+
+        .submission-table th:nth-child(8),
+        .submission-table td:nth-child(8) {
+            width: 12%;
+        }
+
+        .submission-table th:nth-child(9),
+        .submission-table td:nth-child(9) {
+            width: 10%; 
+        }
+
+        .submission-table th:nth-child(10),
+        .submission-table td.action-links {
+            text-align: center;
+        }
+
+        .submission-table tr:hover {
+            background-color: #f5f7fa;
+        }
+
+        .submission-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .no-submission {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1.2rem;
+            font-style: italic;
+            margin: 20px 0;
+        }
+
+
+        .action-links {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-links .btn {
+            padding: 8px;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Cải thiện nút quay lại */
+        .back-link {
+            display: inline-block;
+            margin: 20px auto;
+            font-weight: 500;
+            text-decoration: none;
+            color: #007bff;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .submission-table {
+                width: 95%;
+                font-size: 14px;
+            }
+
+            .submission-table th,
+            .submission-table td {
+                padding: 10px;
+            }
+
+            .submission-table th:nth-child(10),
+            .submission-table td.action-links {
+                width: 150px; 
+            }
+
+            .action-links .btn {
+                width: 32px;
+                height: 32px;
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .no-submission {
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</body>
+</html>
