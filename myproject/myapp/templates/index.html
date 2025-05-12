@@ -6,27 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chấm Trắc Nghiệm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">  
-
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header id="header">
         <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
         <ul>
             {% if username %}
-                <!-- {{username}} - {{role}} -->
                 <li id="loginItem">
-                    <a href="{% url 'logout' %}">Đăng xuất({{username}})</a>
+                    <a href="{% url 'logout' %}">Đăng xuất ({{username}})</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showGuidanceModal(event)">Hướng dẫn</a>
                 </li>
             {% else %}
-            <li id="loginItem">
-                <a href="#" onclick="showLoginForm(event)">Đăng nhập</a>
-            </li>  
-            {% endif %}      
-            <li><a href="#">Hướng dẫn</a></li>
-        </ul>      
+                <li id="loginItem">
+                    <a href="#" onclick="showLoginForm(event)">Đăng nhập</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showGuidanceModal(event)">Hướng dẫn</a>
+                </li>
+            {% endif %}
+        </ul>   
     </header>
-    
+
     {% if messages %}
         <div class="messages">
             {% for message in messages %}
@@ -36,7 +39,7 @@
     {% endif %}
 
     {% if role == 'teacher' %}
-        <section id="teacherSection" >
+        <section id="teacherSection">
             <h2>PHẦN ĐIỀU KHIỂN CỦA GIÁO VIÊN</h2>
             <ul>
                 <li><a href="{% url 'danh_sach_de_thi' %}"><button>Quản lý đề thi</button></a></li>
@@ -44,10 +47,9 @@
                 <li><a href="{% url 'xem_ket_qua' %}"><button>Xem kết quả học sinh</button></a></li>
                 <li><a href="{% url 'them_hoc_sinh' %}"><button>Thêm học sinh</button></a></li>
             </ul>
-            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
         </section>
 
-        {% elif role == 'student' %}
+    {% elif role == 'student' %}
         <section id="studentSection">
             <h2 class="section-title">THÔNG TIN CỦA HỌC SINH</h2>
             <ul class="info-list">
@@ -75,54 +77,98 @@
                 <li><a href="{% url 'xem_ket_qua' %}"><button>Xem kết quả</button></a></li>
             </ul>
         </section>
-            <!-- <a href="{% url 'logout' %}">Đăng xuất</a> -->
+
     {% else %}
-    <!-- Trang chưa đăng nhập -->
-    <div id="showForm">
-        <section class="features">
-            <h2>Chức năng chính</h2>
-            <div class="feature-item">📌 Chấm điểm tự động</div>
-            <div class="feature-item">📊 Đánh giá kết quả</div>
-        </section>
+        <!-- Trang chưa đăng nhập -->
+        <div id="showForm">
+            <section class="features">
+                <h2>Chức năng chính</h2>
+                <div class="feature-item">📌 Chấm điểm tự động</div>
+                <div class="feature-item">📊 Đánh giá kết quả</div>
+            </section>
 
-        <section class="statistics">
-            <h2>Thống kê nổi bật</h2>
-            <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
-            <div class="stat-item">🎯 95% độ chính xác</div>
-            <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
-        </section>
+            <section class="statistics">
+                <h2>Thống kê nổi bật</h2>
+                <div class="stat-item">✅ 1000+ bài thi đã chấm</div>
+                <div class="stat-item">🎯 95% độ chính xác</div>
+                <div class="stat-item">👨‍🏫 500+ giáo viên sử dụng</div>
+            </section>
 
-        <section class="contact">
-            <h2>Liên hệ</h2>
-            <p><i class="fa fa-envelope"></i> Email: domdom@gmail.com</p>
-            <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
-        </section>
+            <section class="contact">
+                <h2>Liên hệ</h2>
+                <p><i class="fa fa-envelope"></i> <a href="mailto:domdom@gmail.com">domdom@gmail.com</a></p>
+                <p><i class="fa fa-phone"></i> Số điện thoại: 0123456789</p>
+            </section>
+            
+            <footer>
+                <p>© 2025 Exam Grading System. All rights reserved.</p>
+            </footer>
 
-        <footer>
-            <p>&copy; 2025 Exam Grading System. All rights reserved.</p>
-        </footer>
-
-            <form method="POST" action="{% url 'login' %}" id="loginForm" >
+            <!-- Form đăng nhập -->
+            <form method="POST" action="{% url 'login' %}" id="loginForm">
                 <div id="login">
                     {% csrf_token %}
-                    <h2>Đăng nhập</h2> 
-                    <button type="button" class="close" onclick="closeLoginForm()">+</button>                  
+                    <h2>Đăng nhập</h2>
+                    <button type="button" class="close" onclick="closeLoginForm()">+</button>
                     <input type="text" name="username" placeholder="Tên đăng nhập" required autocomplete="username">
                     <input type="password" name="password" placeholder="Mật khẩu" required autocomplete="current-password">
-                    <button type="submit" class="btn-login ">Đăng nhập</button>
+                    <button type="submit" class="btn-login">Đăng nhập</button>
+                    <p class="text-center mt-2">
+                        <a href="#" onclick="showRegisterForm(event)" class="text-blue-600 hover:underline">Thêm tài khoản giáo viên?</a>
+                    </p>
                 </div>
-            </form>            
-    </div>
+            </form>
+
+            <!-- Form đăng ký -->
+            <form method="POST" action="{% url 'dang_ky_giao_vien' %}" id="registerForm" onsubmit="return confirmRegister()">
+                <div id="register">
+                    {% csrf_token %}
+                    <h2>Đăng ký giáo viên</h2>
+                    <p style="color: #555;">Lưu ý: Form này chỉ dành cho giáo viên. Học sinh vui lòng liên hệ giáo viên để được tạo tài khoản.</p>
+                    <button type="button" class="close" onclick="closeRegisterForm()">+</button>
+                    <input type="text" name="ten_dang_nhap" placeholder="Tên đăng nhập" required>
+                    <input type="password" name="mat_khau" placeholder="Mật khẩu" required>
+                    <input type="password" name="xac_nhan_mat_khau" placeholder="Xác nhận mật khẩu" required>
+                    <button type="submit" class="btn-register">Đăng ký</button>
+                    <p class="text-center mt-2">
+                        <a href="#" onclick="showLoginForm(event)" class="text-blue-600 hover:underline">Đã có tài khoản? Đăng nhập</a>
+                    </p>
+                </div>
+            </form>
+            <div id="guidanceModal" class="modal">
+                <div class="modal-content">
+                    <h2>Hướng dẫn sử dụng</h2>
+                    <button type="button" class="close" onclick="closeGuidanceModal()">×</button>
+                    <h3>Hướng dẫn cho giáo viên</h3>
+                    <ul>
+                        <li><strong>Quản lý đề thi</strong>: Truy cập "Quản lý đề thi" để tạo đề thi mới, xem danh sách đề thi, hoặc xuất PDF đề thi.</li>
+                        <li><strong>Quản lý câu hỏi</strong>: Vào "Quản lý câu hỏi" để thêm, sửa, hoặc xóa câu hỏi trắc nghiệm.</li>
+                        <li><strong>Thêm học sinh</strong>: Sử dụng "Thêm học sinh" để tạo tài khoản cho học sinh.</li>
+                        <li><strong>Xem kết quả</strong>: Truy cập "Xem kết quả học sinh" để xem danh sách bài làm, chấm bài, hoặc xuất báo cáo PDF.</li>
+                    </ul>
+                    <h3>Hướng dẫn cho học sinh</h3>
+                    <ul>
+                        <li><strong>Nộp bài thi</strong>: Nhấn "Nộp bài thi", chọn đề thi, và tải lên hình ảnh bài thi của bạn.</li>
+                        <li><strong>Xem kết quả</strong>: Vào "Xem kết quả" để xem điểm, số câu đúng/sai, và chi tiết bài làm.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     {% endif %}
-    <script src="{% static 'js/script.js' %}"></script>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="{% static 'js/script.js' %}"></script>
     <script>
         function showLoginForm(event) {
             event.preventDefault();
             const loginForm = document.getElementById('loginForm');
-            if (loginForm) {
+            const registerForm = document.getElementById('registerForm');
+            const guidanceModal = document.getElementById('guidanceModal');
+            if (loginForm && registerForm && guidanceModal) {
                 loginForm.classList.add('show');
+                registerForm.classList.remove('show');
+                guidanceModal.classList.remove('show');
             } else {
-                console.error('Login form not found in the DOM.');
+                alert('Lỗi: Không thể hiển thị form đăng nhập. Vui lòng thử lại.');
             }
         }
 
@@ -130,10 +176,60 @@
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.classList.remove('show');
-                const loginMessage = document.getElementById('loginMessage');
-                if (loginMessage) loginMessage.style.display = 'none';
             }
         }
+
+        function showRegisterForm(event) {
+            event.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const guidanceModal = document.getElementById('guidanceModal');
+            if (loginForm && registerForm && guidanceModal) {
+                loginForm.classList.remove('show');
+                registerForm.classList.add('show');
+                guidanceModal.classList.remove('show');
+            } else {
+                alert('Lỗi: Không thể hiển thị form đăng ký. Vui lòng thử lại.');
+            }
+        }
+
+        function closeRegisterForm() {
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.classList.remove('show');
+            }
+        }
+
+        function showGuidanceModal(event) {
+            event.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const guidanceModal = document.getElementById('guidanceModal');
+            if (loginForm && registerForm && guidanceModal) {
+                loginForm.classList.remove('show');
+                registerForm.classList.remove('show');
+                guidanceModal.classList.add('show');
+            } else {
+                alert('Lỗi: Không thể hiển thị hướng dẫn. Vui lòng thử lại.');
+            }
+        }
+
+        function closeGuidanceModal() {
+            const guidanceModal = document.getElementById('guidanceModal');
+            if (guidanceModal) {
+                guidanceModal.classList.remove('show');
+            }
+        }
+
+        function submitExam() {
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection) {
+                uploadSection.style.display = uploadSection.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function confirmRegister() {
+            return confirm('Bạn có chắc chắn muốn đăng ký tài khoản giáo viên này?');
+        }
     </script>
-</body>
 </html>

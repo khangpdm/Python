@@ -756,7 +756,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from .models import HocSinh
 from .forms import StudentRegistrationForm
-
+from .forms import CauHoiForm, StudentRegistrationForm, UserRegistrationForm
 def them_hoc_sinh(request):
     if request.session.get('role') != 'teacher':
         messages.error(request, 'Chỉ giáo viên mới có thể thêm học sinh.')
@@ -780,3 +780,33 @@ def them_hoc_sinh(request):
         form = StudentRegistrationForm()
 
     return render(request, 'them_hoc_sinh.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import GiaoVien
+from .forms import UserRegistrationForm
+
+def dang_ky_giao_vien(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            ten_dang_nhap = form.cleaned_data['ten_dang_nhap']
+            mat_khau = form.cleaned_data['mat_khau']  # Lưu mật khẩu dạng văn bản thuần
+            try:
+                GiaoVien.objects.create(
+                    ten_dang_nhap=ten_dang_nhap,
+                    mat_khau=mat_khau
+                )
+                # Tự động đăng nhập bằng cách lưu vào session
+                request.session['username'] = ten_dang_nhap
+                request.session['role'] = 'teacher'
+                messages.success(request, f'Tài khoản giáo viên "{ten_dang_nhap}" đã được tạo thành công. Chào mừng bạn!')
+                return redirect('home')  # Chuyển hướng đến trang chủ với giao diện giáo viên
+            except Exception as e:
+                messages.error(request, f'Lỗi khi tạo tài khoản: {str(e)}')
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'dang_ky_giao_vien.html', {'form': form})
