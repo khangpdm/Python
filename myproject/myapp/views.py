@@ -791,7 +791,7 @@ def dang_ky_giao_vien(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             ten_dang_nhap = form.cleaned_data['ten_dang_nhap']
-            mat_khau = form.cleaned_data['mat_khau']  # Lưu mật khẩu dạng văn bản thuần
+            mat_khau = form.cleaned_data['mat_khau']  
             try:
                 GiaoVien.objects.create(
                     ten_dang_nhap=ten_dang_nhap,
@@ -801,7 +801,7 @@ def dang_ky_giao_vien(request):
                 request.session['username'] = ten_dang_nhap
                 request.session['role'] = 'teacher'
                 messages.success(request, f'Tài khoản giáo viên "{ten_dang_nhap}" đã được tạo thành công. Chào mừng bạn!')
-                return redirect('home')  # Chuyển hướng đến trang chủ với giao diện giáo viên
+                return redirect('home')  
             except Exception as e:
                 messages.error(request, f'Lỗi khi tạo tài khoản: {str(e)}')
         else:

@@ -11,7 +11,7 @@
 <body>
     <header id="header">
         <h2>Hệ thống nhận diện bài thi trắc nghiệm</h2>
-        <ul>
+<ul>
             {% if username %}
                 <li id="loginItem">
                     <a href="{% url 'logout' %}">Đăng xuất ({{username}})</a>
@@ -27,7 +27,7 @@
                     <a href="#" onclick="showGuidanceModal(event)">Hướng dẫn</a>
                 </li>
             {% endif %}
-        </ul>   
+        </ul> 
     </header>
 
     {% if messages %}
@@ -135,26 +135,26 @@
                     </p>
                 </div>
             </form>
-            <div id="guidanceModal" class="modal">
-                <div class="modal-content">
-                    <h2>Hướng dẫn sử dụng</h2>
-                    <button type="button" class="close" onclick="closeGuidanceModal()">×</button>
-                    <h3>Hướng dẫn cho giáo viên</h3>
-                    <ul>
-                        <li><strong>Quản lý đề thi</strong>: Truy cập "Quản lý đề thi" để tạo đề thi mới, xem danh sách đề thi, hoặc xuất PDF đề thi.</li>
-                        <li><strong>Quản lý câu hỏi</strong>: Vào "Quản lý câu hỏi" để thêm, sửa, hoặc xóa câu hỏi trắc nghiệm.</li>
-                        <li><strong>Thêm học sinh</strong>: Sử dụng "Thêm học sinh" để tạo tài khoản cho học sinh.</li>
-                        <li><strong>Xem kết quả</strong>: Truy cập "Xem kết quả học sinh" để xem danh sách bài làm, chấm bài, hoặc xuất báo cáo PDF.</li>
-                    </ul>
-                    <h3>Hướng dẫn cho học sinh</h3>
-                    <ul>
-                        <li><strong>Nộp bài thi</strong>: Nhấn "Nộp bài thi", chọn đề thi, và tải lên hình ảnh bài thi của bạn.</li>
-                        <li><strong>Xem kết quả</strong>: Vào "Xem kết quả" để xem điểm, số câu đúng/sai, và chi tiết bài làm.</li>
-                    </ul>
-                </div>
-            </div>
         </div>
     {% endif %}
+    <div id="guidanceModal" class="modal">
+        <div class="modal-content">
+            <h2>Hướng dẫn sử dụng</h2>
+            <button type="button" class="close" onclick="closeGuidanceModal()">×</button>
+            <h3>Hướng dẫn cho giáo viên</h3>
+            <ul>
+                <li><strong>Quản lý đề thi</strong>: Truy cập "Quản lý đề thi" để tạo đề thi mới, xem danh sách đề thi, hoặc xuất PDF đề thi.</li>
+                <li><strong>Quản lý câu hỏi</strong>: Vào "Quản lý câu hỏi" để thêm, sửa, hoặc xóa câu hỏi trắc nghiệm.</li>
+                <li><strong>Thêm học sinh</strong>: Sử dụng "Thêm học sinh" để tạo tài khoản cho học sinh.</li>
+                <li><strong>Xem kết quả</strong>: Truy cập "Xem kết quả học sinh" để xem danh sách bài làm, chấm bài, hoặc xuất báo cáo PDF.</li>
+            </ul>
+            <h3>Hướng dẫn cho học sinh</h3>
+            <ul>
+                <li><strong>Nộp bài thi</strong>: Nhấn "Nộp bài thi", chọn đề thi, và tải lên hình ảnh bài thi của bạn.</li>
+                <li><strong>Xem kết quả</strong>: Vào "Xem kết quả" để xem điểm, số câu đúng/sai, và chi tiết bài làm.</li>
+            </ul>
+        </div>
+    </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="{% static 'js/script.js' %}"></script>
     <script>
@@ -200,20 +200,21 @@
             }
         }
 
-        function showGuidanceModal(event) {
-            event.preventDefault();
+    function showGuidanceModal(event) {
+        event.preventDefault();
+        const guidanceModal = document.getElementById('guidanceModal');
+        if (guidanceModal) {
+            // Ẩn các form nếu chúng tồn tại
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
-            const guidanceModal = document.getElementById('guidanceModal');
-            if (loginForm && registerForm && guidanceModal) {
-                loginForm.classList.remove('show');
-                registerForm.classList.remove('show');
-                guidanceModal.classList.add('show');
-            } else {
-                alert('Lỗi: Không thể hiển thị hướng dẫn. Vui lòng thử lại.');
-            }
+            if (loginForm) loginForm.classList.remove('show');
+            if (registerForm) registerForm.classList.remove('show');
+            guidanceModal.classList.add('show');
+        } else {
+            alert('Lỗi: Không thể hiển thị hướng dẫn. Vui lòng thử lại.');
         }
-
+    }
+        // Đóng modal hướng dẫn
         function closeGuidanceModal() {
             const guidanceModal = document.getElementById('guidanceModal');
             if (guidanceModal) {
